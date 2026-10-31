@@ -1,0 +1,9 @@
+{
+  "name": "limea-plugin-market",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": { "pack:plugin": "node scripts/pack-plugin.mjs", "check": "node scripts/check-catalog.mjs" },
+  "devDependencies": { "yazl": "3.3.1" }
+}
