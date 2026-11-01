@@ -36,6 +36,11 @@ const errors = [],
   serverErrors = [],
   logs = [];
 const cols = 'ABCDEFGHIJKLMNO';
+let releaseResult;
+const resultGate = new Promise((resolve) => {
+  releaseResult = resolve;
+});
+let holdResult = true;
 function saved() {
   const db = new DatabaseSync(
     join(profile, 'storage/plugin-data/games.gomoku/databases/matches.sqlite'),
@@ -63,6 +68,10 @@ const server = createServer(async (req, res) => {
       missStart = false;
       stream = protocolStream('chat-completions', { chunks: ['好呀，我们来下五子棋。'] });
     } else if (start) {
+      if (holdResult && saved()?.status === 'round-over') {
+        holdResult = false;
+        await resultGate;
+      }
       if (body.tool_choice?.function?.name === start) forced = true;
       stream = readProtocolStream(
         'chat-completions',
@@ -229,12 +238,37 @@ try {
         await ws.locator('.gomoku').screenshot({ path: join(artifacts, 'gomoku-playing.png') });
     }
   }
-  await ws.locator('.gomoku[data-status=waiting-replay]').waitFor();
+  await ws.locator('.gomoku[data-status=round-over]').waitFor();
   assert.equal(saved().winner, 'human');
   assert.equal(saved().scores.human, 1);
   assert.equal(await ws.locator('.cell[data-win=true]').count(), 5);
+  for (const name of ['再来一局', '下次再玩']) {
+    const choice = ws.getByRole('button', { name, exact: true });
+    assert.ok(await choice.isVisible(), `${name} must appear before the model finishes`);
+    assert.ok(
+      await choice.evaluate((button) => {
+        const rect = button.getBoundingClientRect();
+        if (rect.top < 0 || rect.bottom > innerHeight) return false;
+        for (let parent = button.parentElement; parent; parent = parent.parentElement) {
+          const { overflowY } = getComputedStyle(parent);
+          const clip = parent.getBoundingClientRect();
+          if (
+            /auto|scroll|hidden|clip/.test(overflowY) &&
+            (rect.top < clip.top || rect.bottom > clip.bottom)
+          )
+            return false;
+        }
+        return true;
+      }),
+      `${name} must be inside the visible panel without scrolling`,
+    );
+  }
   await ws.locator('.gomoku').screenshot({ path: join(artifacts, 'gomoku-result.png') });
   await ws.getByRole('button', { name: '再来一局', exact: true }).click();
+  await ws.getByText('已选择再来一局，等待角色回应后开局。', { exact: true }).waitFor();
+  assert.equal(saved().replayRequested, true, 'early replay choice must be saved');
+  assert.equal(saved().roundNumber, 1, 'do not advance before the result response');
+  releaseResult();
   await human(page);
   await ws.getByRole('button', { name: '认输', exact: true }).click();
   await ws.locator('.gomoku[data-status=waiting-replay]').waitFor();
@@ -295,6 +329,7 @@ try {
       humanWait: true,
       win: true,
       replay: true,
+      immediateResultChoices: true,
       resign: true,
       quit: true,
       restart: true,
@@ -309,6 +344,7 @@ try {
   }
   throw error;
 } finally {
+  releaseResult();
   await app?.close();
   server.closeAllConnections();
   await new Promise((resolve) => server.close(resolve));

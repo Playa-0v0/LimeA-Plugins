@@ -84,6 +84,7 @@ export function toolState(match) {
     lastMove: match.moves.at(-1) ?? null,
     winner: match.winner,
     reason: match.reason,
+    replayRequested: Boolean(match.replayRequested),
     scores: { ...match.scores },
   };
 }

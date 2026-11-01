@@ -169,6 +169,61 @@ test('双方轮流、去重、用户获胜、等待续局、随机黑白、认�
   }
 });
 
+test('局末无需等待模型即可选择续局或退出，续局选择只消费一次', async () => {
+  const { sqlite, db } = fixture();
+  const game = await createGame(db, { first: () => 'model' });
+  try {
+    let state = await game.start({}, call('start'));
+    state = await game.act(action(state, 'resign'));
+    const beforeChoice = state;
+    state = await game.act(action(state, 'replay'));
+    assert.equal(state.status, 'round-over');
+    assert.equal(state.roundId, beforeChoice.roundId, '保留本局结果直到模型回应');
+    assert.equal(state.replayRequested, true);
+    assert.deepEqual(state.scores, { human: 0, model: 1, draw: 0 });
+    assert.match((await game.policy(call('policy'))).instruction, /用户已选择再来一局/);
+    await assert.rejects(game.act(action(state, 'replay')), /not-waiting-for-replay/);
+    await game.start({}, call('accept-replay'));
+    state = await game.load(scope);
+    assert.equal(state.roundNumber, 2);
+    assert.notEqual(state.roundId, beforeChoice.roundId);
+    assert.equal(state.replayRequested, undefined);
+    await game.start({}, call('accept-replay'));
+    assert.equal((await game.load(scope)).roundNumber, 2);
+    state = await game.act(action(state, 'resign'));
+    await game.act(action(state, 'quit'));
+    assert.equal((await game.start({}, call('late-result'))).status, 'ended');
+    assert.equal((await game.load(scope)).roundNumber, 2);
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
+test('提前保存的续局选择在重启恢复后仍只开一局', async () => {
+  const { sqlite, db } = fixture();
+  let game = await createGame(db, { first: () => 'model' });
+  try {
+    let state = await game.start({}, call('start'));
+    state = await game.act(action(state, 'resign'));
+    await game.act(action(state, 'replay'));
+    await game.dispose();
+    game = await createGame(db, { first: () => 'model' });
+    state = await game.load(scope);
+    assert.equal(state.status, 'paused');
+    assert.equal(state.replayRequested, true);
+    await game.start({}, call('resume', undefined, 'new-run'));
+    state = await game.load(scope);
+    assert.equal(state.roundNumber, 2);
+    assert.equal(state.status, 'active');
+    assert.deepEqual(state.scores, { human: 0, model: 1, draw: 0 });
+    assert.equal(state.replayRequested, undefined);
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
 test('并发点击、过时版本、占位、越界和错误会话不会改变棋盘', { timeout: 10000 }, async () => {
   const { sqlite, db } = fixture();
   const game = await createGame(db, { first: () => 'model' });

@@ -10,7 +10,7 @@ export function mount(container, context) {
   style.textContent = css;
   root.innerHTML = `<header class="heading"><div><h2>${tr('五子棋', 'Gomoku')}</h2><p>${tr('和当前角色一起，落子成局。', 'A game with your current character.')}</p></div><button class="refresh" type="button">${tr('同步棋局', 'Sync game')}</button></header>
     <div class="scoreboard"><div class="player human"><span class="piece"></span><div><strong class="name">${tr('你', 'You')}</strong><span class="color-label"></span></div></div><div class="scores"><strong>0 : 0</strong><span class="round">${tr('随机分配黑白', 'Random colors')}</span></div><div class="player model"><div><strong class="name"></strong><span class="color-label"></span></div><span class="piece"></span></div></div>
-    <p class="status" role="status"></p><div class="board-layout"><div class="columns" aria-hidden="true"></div><div class="rows" aria-hidden="true"></div><div class="board"><svg viewBox="0 0 15 15" aria-hidden="true"></svg><div class="cells" role="group" aria-label="${tr('五子棋棋盘', 'Gomoku board')}"></div></div></div><p class="last"></p>
+    <div class="turn-panel"><p class="status" role="status"></p><div class="result-actions" hidden></div><p class="result-hint" hidden>${tr('已选择再来一局，等待角色回应后开局。', 'Play again selected. The next round starts after your character responds.')}</p></div><div class="board-layout"><div class="columns" aria-hidden="true"></div><div class="rows" aria-hidden="true"></div><div class="board"><svg viewBox="0 0 15 15" aria-hidden="true"></svg><div class="cells" role="group" aria-label="${tr('五子棋棋盘', 'Gomoku board')}"></div></div></div><p class="last"></p>
     <p class="error" role="alert" hidden></p><details class="rules"><summary>${tr('玩法与规则', 'How to play')}</summary><p>${tr('15×15 自由五子棋，无禁手。黑棋先行，横、竖或斜向连成五颗及以上获胜。棋盘填满且无人获胜则和棋。点击交点落子；最后一手有圆点标记。键盘方向键选点，回车落子。角色自己思考落子，棋力取决于当前模型。', '15×15 freestyle Gomoku, with no forbidden moves. Black starts. Five or more stones in a row wins; a full board is a draw. Click an intersection to play. A dot marks the last move. Use arrow keys to select and Enter to play. Your character chooses its moves using the current model.')}</p></details>
     <footer class="bottom"><small class="note">${tr('棋局自动保存，可中断后继续', 'Saved automatically. Resume anytime.')}</small><div class="actions"><button class="resign" type="button" hidden>${tr('认输', 'Resign')}</button><button class="quit" type="button" hidden>${tr('结束游戏', 'End game')}</button><button class="start primary" type="button">${tr('开始对局', 'Start game')}</button></div></footer>`;
   root.prepend(style);
@@ -112,6 +112,15 @@ export function mount(container, context) {
       : tr('随机分配黑白', 'Random colors');
     const live = match?.status === 'active';
     const over = match && ['round-over', 'waiting-replay'].includes(match.status);
+    const replayRequested = Boolean(match?.replayRequested);
+    $('.turn-panel').dataset.result = String(Boolean(over));
+    $('.result-actions').hidden = !over;
+    $('.result-hint').hidden = !over || !replayRequested;
+    const actions = over ? $('.result-actions') : $('.actions');
+    if ($('.start').parentElement !== actions) {
+      if (over) actions.append($('.start'), $('.quit'));
+      else actions.append($('.quit'), $('.start'));
+    }
     status.dataset.result = String(Boolean(over));
     status.textContent = !ready
       ? tr('正在同步棋局…', 'Syncing game…')
@@ -121,14 +130,14 @@ export function mount(container, context) {
           : tr('准备好了吗？开始一局五子棋吧', 'Ready for a game of Gomoku?')
         : match.status === 'ended'
           ? tr('对局已结束，比分已保存', 'Game ended. Scores saved.')
-          : match.status === 'paused' || !hostBusy
-            ? tr('对局已暂停，棋盘已保留', 'Game paused. Your board is saved.')
-            : over
-              ? match.winner === 'draw'
-                ? tr('这一局和棋', 'This round is a draw')
-                : match.winner === 'human'
-                  ? tr('这一局，你赢了', 'You won this round')
-                  : tr(`这一局，${name}赢了`, `${name} won this round`)
+          : over
+            ? match.winner === 'draw'
+              ? tr('这一局和棋', 'This round is a draw')
+              : match.winner === 'human'
+                ? tr('这一局，你赢了', 'You won this round')
+                : tr(`这一局，${name}赢了`, `${name} won this round`)
+            : match.status === 'paused' || !hostBusy
+              ? tr('对局已暂停，棋盘已保留', 'Game paused. Your board is saved.')
               : match.turn === 'human'
                 ? tr('轮到你落子', 'Your turn')
                 : tr(`${name}正在思考…`, `${name} is thinking…`);
@@ -168,12 +177,11 @@ export function mount(container, context) {
           `Move ${match.moves.length} · ${last.player === 'human' ? 'You' : name} played ${last.column}${last.row}`,
         )
       : tr('黑棋先行 · 点击交点落子', 'Black starts · Click an intersection');
-    const replay = match?.status === 'waiting-replay';
     $('.start').hidden = Boolean(
-      match && hostBusy && !['ended', 'paused', 'waiting-replay'].includes(match.status),
+      match && hostBusy && !over && !['ended', 'paused'].includes(match.status),
     );
-    $('.start').disabled = busy || !ready || (hostBusy && !replay);
-    $('.start').textContent = replay
+    $('.start').disabled = busy || !ready || (hostBusy && !over) || (over && replayRequested);
+    $('.start').textContent = over
       ? tr('再来一局', 'Play again')
       : match && !['ended'].includes(match.status)
         ? tr('继续对局', 'Resume game')
@@ -258,7 +266,7 @@ export function mount(container, context) {
   }
   async function start() {
     if (disposed || busy || !ready) return;
-    if (match?.status === 'waiting-replay' && hostBusy) return act('replay');
+    if (['round-over', 'waiting-replay'].includes(match?.status) && hostBusy) return act('replay');
     if (hostBusy) return;
     busy = true;
     epoch++;

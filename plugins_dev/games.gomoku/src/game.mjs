@@ -64,6 +64,7 @@ export async function createGame(
     match.winningLine = [];
     match.reason = null;
     delete match.pausedPhase;
+    delete match.replayRequested;
   };
   const assertRun = (match, context) => {
     if (!match || match.runId !== context.runId) throw new Error('stale-game-run');
@@ -144,8 +145,12 @@ export async function createGame(
                 : 'resigned'
             : null;
           match.operations = [];
-        } else if (match.status === 'round-over') match.status = 'waiting-replay';
-        else if (match.status !== 'waiting-replay') throw new Error('game-already-running');
+        } else if (!['round-over', 'waiting-replay'].includes(match.status))
+          throw new Error('game-already-running');
+        if (match.status === 'round-over') {
+          if (match.replayRequested) newRound(match);
+          else match.status = 'waiting-replay';
+        }
         match.operations.push(context.executionId);
         await write(id, match);
       });
@@ -184,8 +189,9 @@ export async function createGame(
           match.turn = null;
           match.reason = 'user-ended';
         } else if (payload.action === 'replay') {
-          if (match.status !== 'waiting-replay') throw new Error('not-waiting-for-replay');
-          newRound(match);
+          if (match.status === 'round-over' && !match.replayRequested) match.replayRequested = true;
+          else if (match.status === 'waiting-replay') newRound(match);
+          else throw new Error('not-waiting-for-replay');
         } else if (payload.action === 'resign') {
           if (match.status !== 'active') throw new Error('game-not-active');
           match.status = 'round-over';
@@ -216,7 +222,7 @@ export async function createGame(
             revision: String(match.revision),
             required: true,
             toolIds: ['start'],
-            instruction: `五子棋本局已结束，后台判定结果：${state}。先按当前角色口吻简短回应结果，再调用 start 等待用户选择再来一局或下次再玩，不得替用户决定。`,
+            instruction: `五子棋本局已结束，后台判定结果：${state}。先按当前角色口吻用一句话宣布结果，无需长篇复盘。${match.replayRequested ? '用户已选择再来一局，调用 start 开始下一局。' : '界面已显示再来一局和下次再玩，调用 start 等待用户选择，不要再次询问或替用户决定。'}`,
           };
         if (match.status === 'active' && match.turn === 'model')
           return {
