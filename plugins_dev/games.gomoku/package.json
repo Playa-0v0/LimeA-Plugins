@@ -1,0 +1,18 @@
+{
+  "name": "@limea-plugins/gomoku",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:desktop": "node tests/desktop.e2e.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "sharp": "0.35.5"
+  }
+}

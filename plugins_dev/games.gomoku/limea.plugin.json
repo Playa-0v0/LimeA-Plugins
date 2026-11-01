@@ -1,0 +1,63 @@
+{
+  "id": "games.gomoku",
+  "name": "五子棋",
+  "version": "0.1.0",
+  "apiVersion": 6,
+  "hostVersion": ">=0.1.0 <1.0.0",
+  "entry": "backend.mjs",
+  "permissions": ["fs:plugin-data"],
+  "panels": [
+    {
+      "id": "games.gomoku.play",
+      "name": "五子棋",
+      "placement": "miniGame",
+      "modes": ["chat"],
+      "entry": "panel.mjs",
+      "icon": "assets/icon.png"
+    }
+  ],
+  "tools": [
+    {
+      "id": "start",
+      "name": "五子棋陪玩",
+      "description": "开始或继续与用户下五子棋。15×15自由规则，随机分配黑白，黑棋先行，连续5子或以上获胜。本工具在用户回合等待；本局结束后先简短回应，再调用它等待用户选择再来一局或下次再玩。不要替用户决定。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "modes": ["chat"],
+      "panelId": "games.gomoku.play"
+    },
+    {
+      "id": "place_stone",
+      "name": "五子棋落子",
+      "description": "只在五子棋模型回合使用。根据当前完整棋盘选择一个空点；列A到O从左到右，行1到15从上到下，roundId和revision须使用最新值。落子后自动等待用户回合。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "roundId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "row": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 15
+          },
+          "column": {
+            "type": "string",
+            "enum": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"]
+          }
+        },
+        "required": ["roundId", "revision", "row", "column"],
+        "additionalProperties": false
+      },
+      "modes": ["chat"],
+      "panelId": "games.gomoku.play"
+    }
+  ]
+}

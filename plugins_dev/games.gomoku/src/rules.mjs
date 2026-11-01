@@ -1,0 +1,95 @@
+export const SIZE = 15;
+export const COLUMNS = 'ABCDEFGHIJKLMNO';
+export const other = (player) => (player === 'human' ? 'model' : 'human');
+export const colorOf = (match, player) => (player === match.black ? 'black' : 'white');
+
+export function coordinate(row, column) {
+  if (
+    !Number.isInteger(row) ||
+    row < 1 ||
+    row > SIZE ||
+    typeof column !== 'string' ||
+    !/^[A-O]$/.test(column)
+  )
+    throw new Error('invalid-coordinate: row must be 1..15 and column A..O');
+  return `${column}${row}`;
+}
+
+export function boardOf(match) {
+  const board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  for (const move of match.moves) board[move.row - 1][COLUMNS.indexOf(move.column)] = move.player;
+  return board;
+}
+
+export function lineThrough(board, row, col, player) {
+  for (const [dy, dx] of [
+    [0, 1],
+    [1, 0],
+    [1, 1],
+    [1, -1],
+  ]) {
+    const line = [{ row: row + 1, column: COLUMNS[col] }];
+    for (const sign of [-1, 1]) {
+      for (
+        let y = row + dy * sign, x = col + dx * sign;
+        y >= 0 && y < SIZE && x >= 0 && x < SIZE && board[y][x] === player;
+        y += dy * sign, x += dx * sign
+      ) {
+        line.push({ row: y + 1, column: COLUMNS[x] });
+      }
+    }
+    if (line.length >= 5) return line;
+  }
+  return [];
+}
+
+export function place(match, player, row, column) {
+  if (match.status !== 'active' || match.turn !== player) throw new Error('not-your-turn');
+  coordinate(row, column);
+  const board = boardOf(match);
+  const x = COLUMNS.indexOf(column),
+    y = row - 1;
+  if (board[y][x]) throw new Error('cell-occupied: choose an empty point marked .');
+  board[y][x] = player;
+  match.moves.push({ row, column, player });
+  match.winningLine = lineThrough(board, y, x, player);
+  if (match.winningLine.length || match.moves.length === SIZE * SIZE) {
+    match.status = 'round-over';
+    match.winner = match.winningLine.length ? player : 'draw';
+    match.scores[match.winner]++;
+    match.reason = match.winner === 'draw' ? 'board-full' : 'five-in-row';
+    match.turn = null;
+  } else match.turn = other(player);
+}
+
+export function textBoard(match) {
+  const rows = boardOf(match).map(
+    (cells, index) =>
+      `${String(index + 1).padStart(2, '0')} ${cells.map((player) => (player ? (player === match.black ? 'X' : 'O') : '.')).join(' ')}`,
+  );
+  return ['   ' + [...COLUMNS].join(' '), ...rows].join('\n');
+}
+
+// The current full board is supplied by policy on every model step. Tool results stay compact.
+export function toolState(match) {
+  return {
+    matchId: match.matchId,
+    roundId: match.roundId,
+    revision: match.revision,
+    roundNumber: match.roundNumber,
+    status: match.status,
+    turn: match.turn,
+    modelColor: colorOf(match, 'model'),
+    moveCount: match.moves.length,
+    lastMove: match.moves.at(-1) ?? null,
+    winner: match.winner,
+    reason: match.reason,
+    scores: { ...match.scores },
+  };
+}
+
+export function publicMatch(match) {
+  if (!match) return null;
+  const { operations: _operations, ...state } = match;
+  return state;
+}

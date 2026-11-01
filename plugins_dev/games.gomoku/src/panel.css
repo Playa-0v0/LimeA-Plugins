@@ -1,0 +1,324 @@
+:host {
+  color: var(--foreground, #ededed);
+  font-family: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+.gomoku {
+  --ink: var(--foreground, #ededed);
+  --soft: var(--muted-foreground, #b5b5b5);
+  --line: var(--border, #353535);
+  --green: var(--primary, #adeb78);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100%;
+  padding: 20px;
+  color: var(--ink);
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: background-color 150ms ease-out;
+}
+button:hover:not(:disabled) {
+  background: var(--muted, #282828);
+}
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+button.primary {
+  color: var(--primary-foreground, #1c2b12);
+  background: var(--green);
+  border-color: transparent;
+}
+button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--green) 88%, var(--ink));
+}
+[hidden] {
+  display: none !important;
+}
+.heading,
+.bottom,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.heading p,
+.note {
+  margin: 7px 0 0;
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.refresh {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 540px);
+  margin: 0 auto;
+  padding: 16px 0;
+  border-block: 1px solid var(--line);
+}
+.player {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.player.model {
+  justify-content: flex-end;
+  text-align: right;
+}
+.name {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+.color-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--soft);
+}
+.player[data-turn='true'] .name {
+  color: var(--green);
+}
+.piece {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex: none;
+  background: #777;
+}
+.piece[data-color='black'] {
+  background: radial-gradient(circle at 30% 25%, #535761, #191b20 75%);
+  border: 1px solid #62656d;
+}
+.piece[data-color='white'] {
+  background: radial-gradient(circle at 30% 25%, #fff, #d7d9df 85%);
+  border: 1px solid #b7bbc3;
+}
+.scores {
+  text-align: center;
+}
+.scores strong {
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.round {
+  display: block;
+  margin-top: 4px;
+  color: var(--soft);
+  font-size: 11px;
+}
+.status {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  min-height: 22px;
+  line-height: 1.5;
+}
+.status[data-result='true'] {
+  color: var(--green);
+}
+.board-layout {
+  display: grid;
+  grid-template: 16px minmax(0, 1fr) / 16px minmax(0, 1fr);
+  gap: 4px;
+  width: min(100%, 540px);
+  align-self: center;
+}
+.columns {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  text-align: center;
+  color: var(--soft);
+  font-size: 10px;
+  align-items: center;
+}
+.rows {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(15, 1fr);
+  text-align: center;
+  color: var(--soft);
+  font-size: 10px;
+  align-items: center;
+}
+.board {
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 8px;
+  background: #d8b785;
+  border: 1px solid #a88b60;
+}
+.board > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.cells {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(15, 1fr);
+}
+.cell {
+  position: relative;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.cell:disabled {
+  opacity: 1;
+}
+.cell:hover:not(:disabled) {
+  background: transparent;
+}
+.cell:focus-visible {
+  outline: 2px solid #473a28;
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+.stone {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #525660, #17191f 80%);
+  box-shadow: 0 1px 2px #40321c66;
+}
+.cell[data-color='white'] .stone,
+.cells[data-human-color='white'] .cell:not([data-color]):hover:not(:disabled)::before {
+  background: radial-gradient(circle at 30% 25%, #fff, #d9dce2 80%);
+}
+.cell:not([data-color]) .stone {
+  display: none;
+}
+.cell[data-last='true'] .stone::after {
+  content: '';
+  position: absolute;
+  inset: 40%;
+  background: #fff;
+  border-radius: 50%;
+}
+.cell[data-last='true'][data-color='white'] .stone::after {
+  background: #313640;
+}
+.cell[data-win='true'] .stone {
+  outline: 3px solid #527a21;
+  outline-offset: 1px;
+}
+@media (hover: hover) {
+  .cell:not([data-color]):hover:not(:disabled)::before {
+    content: '';
+    position: absolute;
+    inset: 9%;
+    border-radius: 50%;
+    background: #202228;
+    opacity: 0.4;
+  }
+}
+.last {
+  text-align: center;
+  margin: 0;
+  color: var(--soft);
+  font-size: 12px;
+  min-height: 18px;
+}
+.bottom {
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 6px;
+}
+.actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+.quit,
+.resign {
+  font-size: 12px;
+}
+.error {
+  margin: 0;
+  color: var(--destructive, #ff9284);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.rules {
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.rules summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.rules p {
+  margin: 8px 0 0;
+}
+@media (max-width: 480px) {
+  .gomoku {
+    padding: 14px;
+    gap: 16px;
+  }
+  .scoreboard {
+    gap: 8px;
+  }
+  .player {
+    gap: 6px;
+  }
+  .scores strong {
+    font-size: 22px;
+  }
+  .piece {
+    width: 20px;
+    height: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "author": "Playa",
+  "category": "games",
+  "description": "和当前角色一起下五子棋。15×15 自由规则，随机分配黑白，由当前会话的模型自己决定落子。支持胜负判定、累计比分、认输、续局和中断恢复，棋局按会话独立保存。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件 API 6 的 LimeA。",
+  "icon": "assets/icon.png",
+  "license": "MIT",
+  "repository": "plugins_dev/games.gomoku",
+  "documentation": "plugins_dev/games.gomoku/README.md"
+}

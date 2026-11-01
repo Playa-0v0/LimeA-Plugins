@@ -7,7 +7,8 @@
 <!-- prettier-ignore -->
 | 序号 | 图标 | 名称 | 作者 | 协议 | 源码／原仓库 | 文档 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | <img src="icons/games.shark/0.3.5.png" width="40" height="40" alt=""> | 鲨鱼咬牙 | Playa | [MIT](plugins_dev/games.shark/LICENSE) · [素材说明](plugins_dev/games.shark/ASSETS.md) | [本仓库](plugins_dev/games.shark) | [说明](plugins_dev/games.shark/README.md) |
+| 1 | <img src="icons/games.gomoku/0.1.0.png" width="40" height="40" alt=""> | 五子棋 | Playa | [MIT](plugins_dev/games.gomoku/LICENSE) | [本仓库](plugins_dev/games.gomoku) | [说明](plugins_dev/games.gomoku/README.md) |
+| 2 | <img src="icons/games.shark/0.3.5.png" width="40" height="40" alt=""> | 鲨鱼咬牙 | Playa | [MIT](plugins_dev/games.shark/LICENSE) · [素材说明](plugins_dev/games.shark/ASSETS.md) | [本仓库](plugins_dev/games.shark) | [说明](plugins_dev/games.shark/README.md) |
 
 <!-- plugins:end -->
 
@@ -17,7 +18,7 @@
 
 在 LimeA 中打开插件市场，选择插件并安装，再到「管理插件」启用。启用即信任插件代码；声明的权限用于说明用途，不是沙箱。更新保持原有启用状态，重启 LimeA 后生效。
 
-鲨鱼咬牙需要支持插件接口版本 6 的 LimeA，启用后从 Chat 模式右侧「小游戏」打开。具体玩法、构建和授权见对应插件文档。
+鲨鱼咬牙和五子棋需要支持插件接口版本 6 的 LimeA，启用后从 Chat 模式右侧「小游戏」打开。具体玩法、构建和授权见对应插件文档。
 
 ## 仓库结构
 

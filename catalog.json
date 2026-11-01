@@ -2,6 +2,24 @@
   "version": 1,
   "plugins": [
     {
+      "id": "games.gomoku",
+      "name": "五子棋",
+      "description": "和当前角色一起下五子棋。15×15 自由规则，随机分配黑白，由当前会话的模型自己决定落子。支持胜负判定、累计比分、认输、续局和中断恢复，棋局按会话独立保存。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件 API 6 的 LimeA。",
+      "author": "Playa",
+      "version": "0.1.0",
+      "hostVersion": ">=0.1.0 <1.0.0",
+      "category": "games",
+      "permissions": [
+        "fs:plugin-data"
+      ],
+      "archive": "plugins/games.gomoku/0.1.0.zip",
+      "sha256": "f962342fd014659b9f7600380bc2c4fc525facfa0399a375426c05047291eed4",
+      "icon": {
+        "path": "icons/games.gomoku/0.1.0.png",
+        "sha256": "3173cb4b1075293e6e9f95d7259a059454b0c74fc6098b3ca8c090bf1f8b00d9"
+      }
+    },
+    {
       "id": "games.shark",
       "name": "鲨鱼咬牙",
       "description": "按下鲨鱼的牙齿，看看谁会碰到那颗危险牙齿。支持单人挑战和角色陪玩，随机先手、轮流按牙、累计计分，还可以再来一局。每段聊天独立保存进度，中断后可继续。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。角色陪玩使用当前会话模型。需要支持插件 API 6 的 LimeA。",
