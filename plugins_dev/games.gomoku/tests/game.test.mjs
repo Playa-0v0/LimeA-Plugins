@@ -33,13 +33,224 @@ const empty = () => ({
   scores: { human: 0, model: 0, draw: 0 },
   winningLine: [],
 });
-function fixture() {
+
+test('设置持久化且下一局生效，模型模式不调用引擎，候选不替模型落子', async () => {
+  const { sqlite, db } = fixture();
+  let calls = 0;
+  const engine = {
+    analyze: async () => {
+      calls++;
+      return { candidates: [{ row: 8, column: 'H', score: 42 }] };
+    },
+    cancel() {},
+    dispose() {},
+  };
+  let game = await createGame(db, { first: () => 'model', engine });
+  try {
+    await game.start({}, call('start'));
+    await game.policy(call('policy'));
+    assert.equal(calls, 0);
+    await assert.rejects(
+      game.saveSettings({ mode: 'remote', difficulty: 'hard' }),
+      /invalid-game-settings/,
+    );
+    await game.saveSettings({ mode: 'engine', difficulty: 'hard' });
+    await game.policy(call('policy'));
+    assert.equal(calls, 0, 'active round keeps its mode');
+    await game.finished(call('finish'));
+    await game.act(action(await game.load(scope), 'quit'));
+    await game.start({}, call('start-new', undefined, 'run2'));
+    const policy = await game.policy(call('policy-new', undefined, 'run2'));
+    assert.equal(calls, 1);
+    assert.match(policy.instruction, /计算结果：/);
+    assert.match(policy.instruction, /不是胜率/);
+    assert.equal((await game.load(scope)).moves.length, 0);
+    const moving = game.modelMove(
+      input(await game.load(scope), 7, 'G'),
+      call('chosen', undefined, 'run2'),
+    );
+    const state = await until(game, (state) => state.turn === 'human');
+    assert.deepEqual(state.moves, [{ row: 7, column: 'G', player: 'model' }]);
+    await game.act(action(state, 'quit'));
+    await moving;
+    await game.dispose();
+    game = await createGame(db);
+    assert.deepEqual(await game.settings(), { mode: 'engine', difficulty: 'hard' });
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
+test('结算结果带完整落子顺序，续局和重启保留历史，跨聊天隔离', async () => {
+  const { sqlite, db } = fixture();
+  let game = await createGame(db, { first: () => 'model' });
+  try {
+    let state = await game.start({}, call('start'));
+    const moving = game.modelMove(input(state, 8, 'H'), call('move'));
+    state = await until(game, (state) => state.turn === 'human');
+    await game.act(action(state, 'resign'));
+    const result = await moving;
+    assert.equal(result.roundRecord.moves, '你:H8');
+    assert.equal(result.roundRecord.winner, 'model');
+    const next = game.start({}, call('next'));
+    state = await until(game, (state) => state.status === 'waiting-replay');
+    await game.act(action(state, 'replay'));
+    state = await next;
+    const firstRound = (await game.history({}, scope)).rounds[0];
+    assert.equal(firstRound.roundId, result.roundId);
+    assert.equal(firstRound.reason, 'resigned');
+    assert.equal(firstRound.moves, '你:H8');
+    const finalMove = game.modelMove(input(state, 9, 'G'), call('move2'));
+    state = await until(game, (state) => state.turn === 'human');
+    await game.act(action(state, 'quit'));
+    const ended = await finalMove;
+    assert.equal(ended.recentRounds.length, 2);
+    assert.equal(ended.recentRounds[0].completed, false);
+    assert.deepEqual(ended.scores, { human: 0, model: 1, draw: 0 });
+    assert.deepEqual(
+      (await game.history({}, { ...scope, sessionId: 'different-chat' })).rounds,
+      [],
+    );
+    await game.dispose();
+    game = await createGame(db);
+    assert.deepEqual((await game.history({}, scope)).rounds, ended.recentRounds);
+    assert.ok(JSON.stringify(ended).length < 30000);
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
+test('结算与存档同一事务，存档失败不丢失棋盘、不重复计分', async () => {
+  const { sqlite, db } = fixture();
+  let fail = true;
+  const game = await createGame(
+    {
+      ...db,
+      transaction: (statements) =>
+        db.transaction(
+          fail ? [...statements, { sql: 'INSERT INTO missing_table VALUES (1)' }] : statements,
+        ),
+    },
+    { first: () => 'model' },
+  );
+  try {
+    let state = await game.start({}, call('start'));
+    const moving = game.modelMove(input(state, 8, 'H'), call('move'));
+    state = await until(game, (state) => state.turn === 'human');
+    await assert.rejects(game.act(action(state, 'resign')), /missing_table/);
+    assert.deepEqual(await game.load(scope), state);
+    assert.deepEqual((await game.history({}, scope)).rounds, []);
+    fail = false;
+    await game.act(action(state, 'resign'));
+    await moving;
+    assert.equal((await game.history({}, scope)).rounds.length, 1);
+    assert.equal((await game.load(scope)).scores.model, 1);
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
+test('取消期间不等待引擎搜索，过时分析不再进入模型提示', async () => {
+  const { sqlite, db } = fixture();
+  let finish;
+  const analyzing = new Promise((resolve) => {
+    finish = resolve;
+  });
+  const game = await createGame(db, {
+    first: () => 'model',
+    engine: {
+      analyze: () => analyzing,
+      cancel: () => finish(null),
+      dispose() {},
+    },
+  });
+  try {
+    await game.saveSettings({ mode: 'engine', difficulty: 'hard' });
+    await game.start({}, call('start'));
+    const policy = game.policy(call('policy'));
+    await tick();
+    await game.finished(call('finish'));
+    assert.equal(await policy, null);
+    assert.equal((await game.load(scope)).status, 'paused');
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
+test('迁移补存旧版最后一局，不重复归档，返回历史遵守工具容量限制', async () => {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec(migrations[0].sql);
+  const state = {
+    ...empty(),
+    matchId: 'old-match',
+    roundId: 'old-round',
+    roundNumber: 1,
+    revision: 9,
+    status: 'ended',
+    runId: 'old-run',
+    operations: [],
+    winner: 'model',
+    reason: 'user-ended',
+  };
+  sqlite.prepare('INSERT INTO matches VALUES (?,?)').run(scope.sessionId, JSON.stringify(state));
+  sqlite.exec(migrations[1].sql);
   const db = {
     get: async (sql, values = []) => sqlite.prepare(sql).get(...values),
     all: async (sql, values = []) => sqlite.prepare(sql).all(...values),
     run: async (sql, values = []) => sqlite.prepare(sql).run(...values),
+  };
+  let game = await createGame(db);
+  try {
+    assert.equal((await game.load(scope)).matchId, 'old-match');
+    assert.equal((await game.history({}, scope)).rounds[0].winner, 'model');
+    await game.dispose();
+    game = await createGame(db);
+    assert.equal((await game.history({}, scope)).rounds.length, 1);
+    const notation = Array.from(
+      { length: 225 },
+      (_, i) => `${i % 2 ? '你' : '用户'}:${COLUMNS[i % 15]}${Math.floor(i / 15) + 1}`,
+    ).join(' ');
+    for (let i = 0; i < 8; i++)
+      sqlite
+        .prepare('INSERT INTO rounds VALUES (?,?,?,?)')
+        .run(
+          scope.sessionId,
+          `archive-${i}`,
+          Date.now() + i,
+          JSON.stringify({ moves: notation, winner: 'draw' }),
+        );
+    const record = await game.history({}, scope);
+    assert.equal(record.rounds.length, 5);
+    assert.ok(Buffer.byteLength(JSON.stringify(record)) < 25000);
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+function fixture() {
+  const sqlite = new DatabaseSync(':memory:');
+  for (const migration of migrations) sqlite.exec(migration.sql);
+  const db = {
+    get: async (sql, values = []) => sqlite.prepare(sql).get(...values),
+    all: async (sql, values = []) => sqlite.prepare(sql).all(...values),
+    run: async (sql, values = []) => sqlite.prepare(sql).run(...values),
+    transaction: async (statements) => {
+      sqlite.exec('BEGIN');
+      try {
+        const results = statements.map(({ sql, params = [] }) =>
+          sqlite.prepare(sql).run(...params),
+        );
+        sqlite.exec('COMMIT');
+        return results;
+      } catch (error) {
+        sqlite.exec('ROLLBACK');
+        throw error;
+      }
+    },
   };
   return { sqlite, db };
 }

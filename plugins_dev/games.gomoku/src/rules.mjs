@@ -70,7 +70,33 @@ export function textBoard(match) {
   return ['   ' + [...COLUMNS].join(' '), ...rows].join('\n');
 }
 
-// The current full board is supplied by policy on every model step. Tool results stay compact.
+export function roundRecord(match) {
+  return {
+    matchId: match.matchId,
+    roundId: match.roundId,
+    roundNumber: match.roundNumber,
+    humanColor: colorOf(match, 'human'),
+    modelColor: colorOf(match, 'model'),
+    winner: match.winner,
+    completed: Boolean(match.winner),
+    reason:
+      match.winner === 'draw'
+        ? 'board-full'
+        : match.winner
+          ? match.winningLine.length
+            ? 'five-in-row'
+            : 'resigned'
+          : 'user-ended',
+    // Ordered notation preserves every move without duplicating a 15x15 board.
+    moves: match.moves
+      .map((move) => `${move.player === 'human' ? '用户' : '你'}:${move.column}${move.row}`)
+      .join(' '),
+    moveCount: match.moves.length,
+    scores: { ...match.scores },
+  };
+}
+
+// Live boards are transient instructions. Final records must also survive in chat history.
 export function toolState(match) {
   return {
     matchId: match.matchId,
@@ -86,6 +112,7 @@ export function toolState(match) {
     reason: match.reason,
     replayRequested: Boolean(match.replayRequested),
     scores: { ...match.scores },
+    ...(match.winner || match.status === 'ended' ? { roundRecord: roundRecord(match) } : {}),
   };
 }
 

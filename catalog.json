@@ -4,18 +4,18 @@
     {
       "id": "games.gomoku",
       "name": "五子棋",
-      "description": "和当前角色一起下五子棋。15×15 自由规则，随机分配黑白，由当前会话的模型自己决定落子。支持落子音效、胜负判定、累计比分、认输、续局和中断恢复，棋局按会话独立保存。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件 API 6 的 LimeA。",
+      "description": "和当前角色一起下五子棋。可选模型落子或引擎辅助，普通、困难两档分析，提供三个候选点供角色决定。支持落子音效、胜负计分、续局、中断恢复及聊天内历史棋谱查询。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件 API 6 的 LimeA。",
       "author": "Playa",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data"
       ],
-      "archive": "plugins/games.gomoku/0.1.2.zip",
-      "sha256": "1a120035a279a14855b832927e82eedd97f93cea8f4de6ce81b5ce1b3f03c76d",
+      "archive": "plugins/games.gomoku/0.2.0.zip",
+      "sha256": "07e0a0d214b04b9d30d0bf25a202c5fa725ff71300c30831b6707605b886c800",
       "icon": {
-        "path": "icons/games.gomoku/0.1.2.png",
+        "path": "icons/games.gomoku/0.2.0.png",
         "sha256": "3173cb4b1075293e6e9f95d7259a059454b0c74fc6098b3ca8c090bf1f8b00d9"
       }
     },

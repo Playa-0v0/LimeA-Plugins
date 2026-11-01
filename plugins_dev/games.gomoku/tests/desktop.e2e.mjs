@@ -46,6 +46,10 @@ const moveGate = new Promise((resolve) => {
   releaseMove = resolve;
 });
 let holdMove = false;
+let historyRequests = 0,
+  historyReplies = 0;
+const engineChoices = [];
+const recallQuestion = '刚才我们的五子棋第一局谁赢了，最后一手下在哪里？';
 function saved() {
   const db = new DatabaseSync(
     join(profile, 'storage/plugin-data/games.gomoku/databases/matches.sqlite'),
@@ -68,8 +72,49 @@ const server = createServer(async (req, res) => {
     const names = (body.tools ?? []).map((tool) => tool.function.name);
     const start = names.find((name) => name.endsWith('_start'));
     const move = names.find((name) => name.endsWith('_place_stone'));
+    const history = names.find((name) => name.endsWith('_history'));
+    const lastUserIndex = body.messages.findLastIndex(
+      (message) =>
+        message.role === 'user' &&
+        !String(message.content).startsWith('Runtime notice (not from the user):'),
+    );
+    const recalling = JSON.stringify(body.messages[lastUserIndex]?.content).includes(
+      recallQuestion,
+    );
     let stream;
-    if (start && missStart) {
+    if (recalling) {
+      // Inspect the real post-game HTTP request before asking the plugin for history.
+      const priorTools = body.messages
+        .slice(0, lastUserIndex)
+        .filter((message) => message.role === 'tool');
+      assert.ok(
+        priorTools.some((message) => JSON.stringify(message.content).includes('用户:E8')),
+        'ordinary chat must receive the completed first-round notation',
+      );
+      assert.ok(
+        priorTools.some((message) => JSON.stringify(message.content).includes('five-in-row')),
+      );
+      const freshResult = body.messages
+        .slice(lastUserIndex + 1)
+        .find((message) => message.role === 'tool');
+      if (!freshResult) {
+        assert.ok(history, 'history lookup available after game run ends');
+        historyRequests++;
+        stream = readProtocolStream(
+          'chat-completions',
+          {},
+          { name: history, callId: `history-${requests}` },
+        );
+      } else {
+        const text = JSON.stringify(freshResult.content);
+        assert.ok(text.includes('用户:E8'));
+        assert.ok(text.includes('five-in-row'));
+        historyReplies++;
+        stream = protocolStream('chat-completions', {
+          chunks: ['记得，第一局你赢了，最后一手是 E8。'],
+        });
+      }
+    } else if (start && missStart) {
       missStart = false;
       stream = protocolStream('chat-completions', { chunks: ['好呀，我们来下五子棋。'] });
     } else if (start) {
@@ -116,6 +161,14 @@ const server = createServer(async (req, res) => {
         }
         const index = state.moves.filter((item) => item.player === 'model').length;
         let point = { row: 15, column: cols[index * 2] };
+        if (state.settings?.mode === 'engine') {
+          const analysis = JSON.parse(system.match(/计算结果：(\{[^\n]+\})/)[1]);
+          assert.equal(analysis.candidates.length, 3);
+          assert.equal(analysis.scoreType, 'evaluation');
+          assert.equal(analysis.difficulty, 'hard');
+          point = analysis.candidates[1];
+          engineChoices.push({ roundId: state.roundId, row: point.row, column: point.column });
+        }
         if (invalidMove && state.moves.length >= 3) {
           invalidMove = false;
           point = state.moves[0];
@@ -210,6 +263,21 @@ async function human(page) {
     .waitFor();
   await page.locator('.workspace-root:visible .gomoku .cell:not(:disabled)').first().waitFor();
   return saved();
+}
+async function recall(page, ws) {
+  const replies = ws.getByText('记得，第一局你赢了，最后一手是 E8。', { exact: true });
+  const previous = await replies.count();
+  await page.evaluate(async (content) => {
+    const sessionId = (await window.limea.listSessions({ conversationMode: 'chat' })).items[0]
+      .sessionId;
+    await window.limea.startRun({
+      sessionId,
+      conversationMode: 'chat',
+      requestKey: crypto.randomUUID(),
+      content,
+    });
+  }, recallQuestion);
+  await replies.nth(previous).waitFor();
 }
 try {
   let page = await launch();
@@ -364,6 +432,8 @@ try {
   await ws.getByRole('button', { name: '下次再玩', exact: true }).click();
   await ws.locator('.gomoku[data-status=ended]').waitFor();
   await ws.getByText('好呀，下次再一起下棋。', { exact: true }).waitFor();
+  await recall(page, ws);
+  assert.equal(historyReplies, 1);
   await ws.getByRole('button', { name: '开始对局', exact: true }).click();
   const before = await human(page);
   await ws.getByRole('button', { name: '落子于 H8', exact: true }).focus();
@@ -408,6 +478,55 @@ try {
   await human(page);
   await ws.getByRole('button', { name: '结束游戏', exact: true }).click();
   await ws.locator('.gomoku[data-status=ended]').waitFor();
+  await ws.getByText('好呀，下次再一起下棋。', { exact: true }).last().waitFor();
+  await ws.getByRole('button', { name: '对局设置', exact: true }).click();
+  const settings = ws.getByRole('dialog', { name: '对局设置' });
+  await settings.locator('input[value=engine]').check();
+  await settings.getByText('已保存，下一局生效', { exact: true }).waitFor();
+  await settings.locator('input[value=hard]').check();
+  await settings.getByText('已保存，下一局生效', { exact: true }).waitFor();
+  await page.screenshot({ path: join(artifacts, 'gomoku-settings.png') });
+  await settings.getByRole('button', { name: '完成', exact: true }).click();
+  await ws.getByRole('button', { name: '开始对局', exact: true }).click();
+  await human(page);
+  if (!engineChoices.length) {
+    await ws.getByRole('button', { name: '落子于 H8', exact: true }).click();
+    await ws.locator('.gomoku[data-moves="2"][data-turn=human]').waitFor();
+  }
+  assert.ok(engineChoices.length > 0);
+  const chosen = engineChoices.at(-1);
+  assert.ok(
+    saved().moves.some(
+      (point) =>
+        point.player === 'model' && point.row === chosen.row && point.column === chosen.column,
+    ),
+    'persist the second candidate chosen by the model, not the highest-scoring engine move',
+  );
+  await ws.getByRole('button', { name: '结束游戏', exact: true }).click();
+  await ws.locator('.gomoku[data-status=ended]').waitFor();
+  await ws.getByText('好呀，下次再一起下棋。', { exact: true }).last().waitFor();
+  await app.close();
+  app = undefined;
+  page = await launch();
+  ws = await openGame(page);
+  const session = await page.evaluate(
+    async () => (await window.limea.listSessions({ conversationMode: 'chat' })).items[0],
+  );
+  await ws.getByText(session.title, { exact: true }).first().click();
+  if (!(await ws.locator('.gomoku').count())) ws = await openGame(page);
+  await ws.getByRole('button', { name: '对局设置', exact: true }).click();
+  await page.waitForFunction(() => {
+    const hosts = [...document.querySelectorAll('*')].filter((el) => el.shadowRoot);
+    return hosts.some((el) =>
+      el.shadowRoot.querySelector('.settings-dialog input[value=hard]:checked:not(:disabled)'),
+    );
+  });
+  const restoredSettings = ws.getByRole('dialog', { name: '对局设置' });
+  assert.ok(await restoredSettings.locator('input[value=engine]').isChecked());
+  assert.ok(await restoredSettings.locator('input[value=hard]').isChecked());
+  await page.keyboard.press('Escape');
+  await recall(page, ws);
+  assert.equal(historyReplies, 2);
   assert.deepEqual(errors, []);
   assert.deepEqual(serverErrors, []);
   assert.equal(missMove, false);
@@ -430,6 +549,11 @@ try {
       sound: true,
       mute: true,
       turnControls: true,
+      engineCandidates: engineChoices.length,
+      modelFinalChoice: true,
+      settingsRestart: true,
+      historyRequests,
+      historyReplies,
     }),
   );
 } catch (error) {
