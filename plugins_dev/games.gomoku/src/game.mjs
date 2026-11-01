@@ -185,6 +185,12 @@ export async function createGame(
           throw new Error('stale-round');
         if (payload.action === 'quit') {
           if (match.status === 'ended') throw new Error('game-ended');
+          if (
+            match.status !== 'paused' &&
+            match.status !== 'waiting-replay' &&
+            !(match.status === 'active' && match.turn === 'human')
+          )
+            throw new Error('wait-for-human-turn');
           match.status = 'ended';
           match.turn = null;
           match.reason = 'user-ended';
@@ -194,6 +200,7 @@ export async function createGame(
           else throw new Error('not-waiting-for-replay');
         } else if (payload.action === 'resign') {
           if (match.status !== 'active') throw new Error('game-not-active');
+          if (match.turn !== 'human') throw new Error('wait-for-human-turn');
           match.status = 'round-over';
           match.turn = null;
           match.winner = 'model';

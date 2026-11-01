@@ -111,6 +111,30 @@ test('满盘和棋、坐标编码与完整模型棋盘一致，非法点不写�
   assert.match(board[15], /^15 X X O O/);
 });
 
+test('模型思考和回应结果期间不能认输或退出，等待用户时才可结束', async () => {
+  const { sqlite, db } = fixture();
+  const game = await createGame(db, { first: () => 'model' });
+  try {
+    await game.start({}, call('start'));
+    let state = await game.load(scope);
+    for (const type of ['resign', 'quit'])
+      await assert.rejects(game.act(action(state, type)), /wait-for-human-turn/);
+    assert.deepEqual(await game.load(scope), state, '禁用操作不改变模型正在使用的局面或版本');
+    const moving = game.modelMove(input(state, 8, 'H'), call('move'));
+    state = await until(game, (state) => state.turn === 'human');
+    state = await game.act(action(state, 'resign'));
+    await moving;
+    await assert.rejects(game.act(action(state, 'quit')), /wait-for-human-turn/);
+    const waiting = game.start({}, call('result'));
+    state = await until(game, (state) => state.status === 'waiting-replay');
+    await game.act(action(state, 'quit'));
+    assert.equal((await waiting).status, 'ended');
+  } finally {
+    await game.dispose();
+    sqlite.close();
+  }
+});
+
 test('双方轮流、去重、用户获胜、等待续局、随机黑白、认输与结束', { timeout: 10000 }, async () => {
   const { sqlite, db } = fixture();
   let round = 0;
@@ -150,7 +174,10 @@ test('双方轮流、去重、用户获胜、等待续局、随机黑白、认�
     assert.equal(state.roundNumber, 2);
     assert.equal(state.black, 'model');
     assert.equal(state.moves.length, 0);
+    const nextMove = game.modelMove(input(state, 8, 'H'), call('next-round-move'));
+    state = await until(game, (state) => state.turn === 'human');
     await game.act(action(state, 'resign'));
+    await nextMove;
     state = await game.load(scope);
     assert.deepEqual(state.scores, { human: 1, model: 1, draw: 0 });
     const ending = game.start({}, call('ending'));
@@ -169,12 +196,15 @@ test('双方轮流、去重、用户获胜、等待续局、随机黑白、认�
   }
 });
 
-test('局末无需等待模型即可选择续局或退出，续局选择只消费一次', async () => {
+test('局末可提前保存续局选择，续局选择只消费一次', async () => {
   const { sqlite, db } = fixture();
-  const game = await createGame(db, { first: () => 'model' });
+  let round = 0;
+  const game = await createGame(db, { first: () => (round++ ? 'model' : 'human') });
   try {
-    let state = await game.start({}, call('start'));
+    const starting = game.start({}, call('start'));
+    let state = await until(game, (state) => state.turn === 'human');
     state = await game.act(action(state, 'resign'));
+    await starting;
     const beforeChoice = state;
     state = await game.act(action(state, 'replay'));
     assert.equal(state.status, 'round-over');
@@ -190,8 +220,14 @@ test('局末无需等待模型即可选择续局或退出，续局选择只消�
     assert.equal(state.replayRequested, undefined);
     await game.start({}, call('accept-replay'));
     assert.equal((await game.load(scope)).roundNumber, 2);
+    const nextMove = game.modelMove(input(state, 8, 'H'), call('next-round-move'));
+    state = await until(game, (state) => state.turn === 'human');
     state = await game.act(action(state, 'resign'));
+    await nextMove;
+    const waiting = game.start({}, call('wait-replay'));
+    state = await until(game, (state) => state.status === 'waiting-replay');
     await game.act(action(state, 'quit'));
+    await waiting;
     assert.equal((await game.start({}, call('late-result'))).status, 'ended');
     assert.equal((await game.load(scope)).roundNumber, 2);
   } finally {
@@ -202,10 +238,12 @@ test('局末无需等待模型即可选择续局或退出，续局选择只消�
 
 test('提前保存的续局选择在重启恢复后仍只开一局', async () => {
   const { sqlite, db } = fixture();
-  let game = await createGame(db, { first: () => 'model' });
+  let game = await createGame(db, { first: () => 'human' });
   try {
-    let state = await game.start({}, call('start'));
+    const starting = game.start({}, call('start'));
+    let state = await until(game, (state) => state.turn === 'human');
     state = await game.act(action(state, 'resign'));
+    await starting;
     await game.act(action(state, 'replay'));
     await game.dispose();
     game = await createGame(db, { first: () => 'model' });
@@ -252,9 +290,12 @@ test('并发点击、过时版本、占位、越界和错误会话不会改变�
     await assert.rejects(game.load({ ...scope, mode: 'work' }), /invalid-game-scope/);
     assert.equal(await game.load({ ...scope, sessionId: 'other' }), null);
     assert.equal((await game.load(scope)).moves.length, 2);
+    const nextMove = game.modelMove(input(state, 1, 'O'), call('next-move'));
+    state = await until(game, (state) => state.turn === 'human');
     await game.act(action(state, 'quit'));
+    await nextMove;
     assert.equal((await game.modelMove(input(state, 5, 'H'), call('late'))).status, 'ended');
-    assert.equal((await game.load(scope)).moves.length, 2);
+    assert.equal((await game.load(scope)).moves.length, 3);
   } finally {
     await game.dispose();
     sqlite.close();

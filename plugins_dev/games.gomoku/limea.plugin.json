@@ -1,11 +1,12 @@
 {
   "id": "games.gomoku",
   "name": "五子棋",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "apiVersion": 6,
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
   "permissions": ["fs:plugin-data"],
+  "resources": ["assets/stone.mp3"],
   "panels": [
     {
       "id": "games.gomoku.play",

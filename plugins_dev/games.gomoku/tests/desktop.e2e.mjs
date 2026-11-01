@@ -41,6 +41,11 @@ const resultGate = new Promise((resolve) => {
   releaseResult = resolve;
 });
 let holdResult = true;
+let releaseMove;
+const moveGate = new Promise((resolve) => {
+  releaseMove = resolve;
+});
+let holdMove = false;
 function saved() {
   const db = new DatabaseSync(
     join(profile, 'storage/plugin-data/games.gomoku/databases/matches.sqlite'),
@@ -105,6 +110,10 @@ const server = createServer(async (req, res) => {
         missMove = false;
         stream = protocolStream('chat-completions', { chunks: ['我想一想。'] });
       } else {
+        if (holdMove) {
+          holdMove = false;
+          await moveGate;
+        }
         const index = state.moves.filter((item) => item.player === 'model').length;
         let point = { row: 15, column: cols[index * 2] };
         if (invalidMove && state.moves.length >= 3) {
@@ -146,8 +155,25 @@ async function launch() {
   app.process().stdout?.on('data', (value) => logs.push(value.toString()));
   app.process().stderr?.on('data', (value) => logs.push(value.toString()));
   const page = await app.firstWindow();
+  const probeAudio = () => {
+    if (window.gomokuAudioProbe) return;
+    window.gomokuAudioProbe = { count: 0, duration: 0 };
+    const start = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (...args) {
+      if (this.buffer) {
+        window.gomokuAudioProbe.count++;
+        window.gomokuAudioProbe.duration = this.buffer.duration;
+      }
+      return start.apply(this, args);
+    };
+  };
+  await page.addInitScript(probeAudio);
+  await page.evaluate(probeAudio);
   page.setDefaultTimeout(20000);
   page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') logs.push(message.text());
+  });
   await page.waitForFunction(
     async () => (await window.limea?.getStartupState())?.phase === 'shell-ready',
   );
@@ -231,9 +257,66 @@ try {
   for (const column of 'ABCDE') {
     await human(page);
     const previous = saved().moves.length;
+    const sounds = await page.evaluate(() => window.gomokuAudioProbe.count);
+    if (column === 'A') holdMove = true;
     await ws.getByRole('button', { name: `落子于 ${column}8`, exact: true }).click();
+    if (column === 'A') {
+      await ws.locator('.gomoku[data-turn=model]').waitFor();
+      assert.equal(await ws.getByRole('button', { name: '认输', exact: true }).isDisabled(), true);
+      assert.equal(
+        await ws.getByRole('button', { name: '结束游戏', exact: true }).isDisabled(),
+        true,
+      );
+      const state = saved();
+      const sessionId = await page.evaluate(
+        async () =>
+          (await window.limea.listSessions({ conversationMode: 'chat' })).items[0].sessionId,
+      );
+      assert.ok(sessionId);
+      for (const action of ['resign', 'quit']) {
+        await assert.rejects(
+          page.evaluate(
+            async (payload) =>
+              window.limea.pluginCommand({
+                pluginId: 'games.gomoku',
+                method: 'match-action',
+                payload,
+              }),
+            {
+              mode: 'chat',
+              sessionId,
+              matchId: state.matchId,
+              roundId: state.roundId,
+              revision: state.revision,
+              action,
+            },
+          ),
+        );
+      }
+      assert.deepEqual(saved(), state, 'blocked controls must not invalidate the in-flight move');
+      releaseMove();
+    }
     if (column !== 'E') {
       await ws.locator(`.gomoku[data-moves="${previous + 2}"][data-turn=human]`).waitFor();
+      if (column === 'A') {
+        await page.waitForFunction((count) => window.gomokuAudioProbe.count === count + 2, sounds);
+        const sound = await page.evaluate(() => window.gomokuAudioProbe);
+        assert.ok(sound.duration > 0.1 && sound.duration < 0.4, 'packaged MP3 decoded and played');
+        await ws.getByRole('button', { name: '同步棋局', exact: true }).click();
+        assert.equal(
+          (await page.evaluate(() => window.gomokuAudioProbe)).count,
+          sound.count,
+          'sync must not replay stones',
+        );
+        await ws.getByRole('button', { name: '声音开', exact: true }).click();
+      } else if (column === 'B') {
+        assert.equal(
+          (await page.evaluate(() => window.gomokuAudioProbe)).count,
+          sounds,
+          'mute suppresses both players',
+        );
+        await ws.getByRole('button', { name: '声音关', exact: true }).click();
+      }
       if (column === 'C')
         await ws.locator('.gomoku').screenshot({ path: join(artifacts, 'gomoku-playing.png') });
     }
@@ -242,6 +325,11 @@ try {
   assert.equal(saved().winner, 'human');
   assert.equal(saved().scores.human, 1);
   assert.equal(await ws.locator('.cell[data-win=true]').count(), 5);
+  assert.equal(
+    await ws.getByRole('button', { name: '下次再玩', exact: true }).isDisabled(),
+    true,
+    'leaving waits until the model result response finishes',
+  );
   for (const name of ['再来一局', '下次再玩']) {
     const choice = ws.getByRole('button', { name, exact: true });
     assert.ok(await choice.isVisible(), `${name} must appear before the model finishes`);
@@ -300,6 +388,11 @@ try {
     ws = await openGame(page);
   }
   await ws.locator('.gomoku[data-status=paused]').waitFor();
+  assert.equal(
+    (await page.evaluate(() => window.gomokuAudioProbe)).count,
+    0,
+    'restoring a board must be silent',
+  );
   assert.equal(saved().roundId, preserved.roundId);
   assert.deepEqual(saved().moves, preserved.moves);
   await app.evaluate(({ BrowserWindow }) =>
@@ -334,6 +427,9 @@ try {
       quit: true,
       restart: true,
       noOverflow: true,
+      sound: true,
+      mute: true,
+      turnControls: true,
     }),
   );
 } catch (error) {
@@ -341,10 +437,12 @@ try {
     const page = await app.firstWindow();
     await page.screenshot({ path: join(artifacts, 'failure.png') }).catch(() => {});
     console.log((await page.locator('body').innerText()).slice(-2000));
+    console.log('audio probe:', await page.evaluate(() => window.gomokuAudioProbe));
   }
   throw error;
 } finally {
   releaseResult();
+  releaseMove();
   await app?.close();
   server.closeAllConnections();
   await new Promise((resolve) => server.close(resolve));

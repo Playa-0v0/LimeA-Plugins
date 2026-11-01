@@ -25,4 +25,6 @@ await build({
 await sharp('assets/icon.svg').resize(192, 192).png().toFile('dist/assets/icon.png');
 await cp('limea.plugin.json', 'dist/limea.plugin.json');
 await cp('LICENSE', 'dist/LICENSE');
+await cp('assets/stone.mp3', 'dist/assets/stone.mp3');
+await cp('ASSETS.md', 'dist/ASSETS.md');
 console.log('构建完成：导入 plugins_dev/games.gomoku/dist 并启用。');

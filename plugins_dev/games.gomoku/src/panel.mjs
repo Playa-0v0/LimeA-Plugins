@@ -1,5 +1,6 @@
 import css from './panel.css';
 import { SIZE, COLUMNS } from './rules.mjs';
+import { createStoneSound } from './sound.mjs';
 
 export function mount(container, context) {
   const en = context.language.startsWith('en');
@@ -8,7 +9,7 @@ export function mount(container, context) {
   root.className = 'gomoku';
   const style = document.createElement('style');
   style.textContent = css;
-  root.innerHTML = `<header class="heading"><div><h2>${tr('五子棋', 'Gomoku')}</h2><p>${tr('和当前角色一起，落子成局。', 'A game with your current character.')}</p></div><button class="refresh" type="button">${tr('同步棋局', 'Sync game')}</button></header>
+  root.innerHTML = `<header class="heading"><div><h2>${tr('五子棋', 'Gomoku')}</h2><p>${tr('和当前角色一起，落子成局。', 'A game with your current character.')}</p></div><div class="heading-actions"><button class="sound" type="button"></button><button class="refresh" type="button">${tr('同步棋局', 'Sync game')}</button></div></header>
     <div class="scoreboard"><div class="player human"><span class="piece"></span><div><strong class="name">${tr('你', 'You')}</strong><span class="color-label"></span></div></div><div class="scores"><strong>0 : 0</strong><span class="round">${tr('随机分配黑白', 'Random colors')}</span></div><div class="player model"><div><strong class="name"></strong><span class="color-label"></span></div><span class="piece"></span></div></div>
     <div class="turn-panel"><p class="status" role="status"></p><div class="result-actions" hidden></div><p class="result-hint" hidden>${tr('已选择再来一局，等待角色回应后开局。', 'Play again selected. The next round starts after your character responds.')}</p></div><div class="board-layout"><div class="columns" aria-hidden="true"></div><div class="rows" aria-hidden="true"></div><div class="board"><svg viewBox="0 0 15 15" aria-hidden="true"></svg><div class="cells" role="group" aria-label="${tr('五子棋棋盘', 'Gomoku board')}"></div></div></div><p class="last"></p>
     <p class="error" role="alert" hidden></p><details class="rules"><summary>${tr('玩法与规则', 'How to play')}</summary><p>${tr('15×15 自由五子棋，无禁手。黑棋先行，横、竖或斜向连成五颗及以上获胜。棋盘填满且无人获胜则和棋。点击交点落子；最后一手有圆点标记。键盘方向键选点，回车落子。角色自己思考落子，棋力取决于当前模型。', '15×15 freestyle Gomoku, with no forbidden moves. Black starts. Five or more stones in a row wins; a full board is a draw. Click an intersection to play. A dot marks the last move. Use arrow keys to select and Enter to play. Your character chooses its moves using the current model.')}</p></details>
@@ -34,6 +35,10 @@ export function mount(container, context) {
   let cancelRun = () => {},
     cancelVisibility = () => {};
   const clicks = new AbortController();
+  const sound = createStoneSound(context.resourceBase);
+  let suppressNextSound = true;
+  root.addEventListener('pointerdown', sound.unlock, { capture: true, signal: clicks.signal });
+  root.addEventListener('keydown', sound.unlock, { capture: true, signal: clicks.signal });
   const scope = { mode: context.mode, sessionId: context.sessionId };
   const buttons = [];
   $('.columns').replaceChildren(
@@ -74,7 +79,17 @@ export function mount(container, context) {
   const accept = (next) => {
     if (disposed) return;
     if (next && match?.matchId === next.matchId && next.revision < match.revision) return;
+    const newStone =
+      !suppressNextSound &&
+      match &&
+      next &&
+      match.matchId === next.matchId &&
+      match.roundId === next.roundId &&
+      next.moves.length > match.moves.length &&
+      next.status !== 'paused';
     match = next;
+    suppressNextSound = false;
+    if (newStone) sound.play();
     ready = true;
     if (syncFailed) {
       error.hidden = true;
@@ -115,7 +130,16 @@ export function mount(container, context) {
     const replayRequested = Boolean(match?.replayRequested);
     $('.turn-panel').dataset.result = String(Boolean(over));
     $('.result-actions').hidden = !over;
-    $('.result-hint').hidden = !over || !replayRequested;
+    $('.result-hint').hidden = !over || (!replayRequested && match.status !== 'round-over');
+    $('.result-hint').textContent = replayRequested
+      ? tr(
+          '已选择再来一局，等待角色回应后开局。',
+          'Play again selected. The next round starts after your character responds.',
+        )
+      : tr(
+          '等待角色回应后，可选择下次再玩。',
+          'You can leave after your character finishes responding.',
+        );
     const actions = over ? $('.result-actions') : $('.actions');
     if ($('.start').parentElement !== actions) {
       if (over) actions.append($('.start'), $('.quit'));
@@ -187,10 +211,29 @@ export function mount(container, context) {
         ? tr('继续对局', 'Resume game')
         : tr('开始对局', 'Start game');
     $('.quit').hidden = !match || match.status === 'ended';
-    $('.quit').disabled = busy || !ready;
+    const canQuit =
+      humanCanMove() ||
+      match?.status === 'waiting-replay' ||
+      (match?.status === 'paused' && !hostBusy);
+    const waitText = tr(
+      '请等到你的回合或角色回应结束后操作',
+      'Wait for your turn or for your character to finish responding',
+    );
+    $('.quit').disabled = busy || !ready || !canQuit;
+    $('.quit').title = canQuit ? '' : waitText;
     $('.quit').textContent = over ? tr('下次再玩', 'Maybe later') : tr('结束游戏', 'End game');
     $('.resign').hidden = !live || !hostBusy;
-    $('.resign').disabled = busy || !ready;
+    $('.resign').disabled = !humanCanMove();
+    $('.resign').title = humanCanMove() ? '' : waitText;
+    $('.note').textContent =
+      live && match.turn === 'model'
+        ? tr(
+            '角色正在思考，轮到你时可认输或结束',
+            'Your character is thinking. Resign or leave on your turn.',
+          )
+        : tr('棋局自动保存，可中断后继续', 'Saved automatically. Resume anytime.');
+    $('.sound').textContent = sound.muted ? tr('声音关', 'Sound off') : tr('声音开', 'Sound on');
+    $('.sound').setAttribute('aria-pressed', String(!sound.muted));
     $('.refresh').disabled = busy || refreshing;
   }
   async function refresh() {
@@ -223,6 +266,8 @@ export function mount(container, context) {
   }
   async function act(action, point) {
     if (disposed || busy || !ready || !match) return;
+    if (action === 'resign' && $('.resign').disabled) return;
+    if (action === 'quit' && $('.quit').disabled) return;
     busy = true;
     epoch++;
     error.hidden = true;
@@ -339,6 +384,14 @@ export function mount(container, context) {
   $('.quit').addEventListener('click', () => void act('quit'), { signal: clicks.signal });
   $('.resign').addEventListener('click', () => void act('resign'), { signal: clicks.signal });
   $('.refresh').addEventListener('click', () => void refresh(), { signal: clicks.signal });
+  $('.sound').addEventListener(
+    'click',
+    () => {
+      sound.toggle();
+      render();
+    },
+    { signal: clicks.signal },
+  );
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
@@ -346,6 +399,7 @@ export function mount(container, context) {
     pollEpoch++;
     clearTimeout(timer);
     clicks.abort();
+    sound.dispose();
     cancelRun();
     cancelVisibility();
     context.signal.removeEventListener('abort', cleanup);
@@ -359,6 +413,8 @@ export function mount(container, context) {
   });
   cancelVisibility = context.onVisibilityChange((value) => {
     visible = value;
+    sound.setVisible(value);
+    if (!visible) suppressNextSound = true;
     if (visible) schedule();
     else {
       pollEpoch++;

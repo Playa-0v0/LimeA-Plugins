@@ -51,6 +51,7 @@ button.primary:hover:not(:disabled) {
   display: none !important;
 }
 .heading,
+.heading-actions,
 .bottom,
 .actions {
   display: flex;
@@ -70,7 +71,8 @@ button.primary:hover:not(:disabled) {
   font-size: 12px;
   line-height: 1.6;
 }
-.refresh {
+.refresh,
+.sound {
   padding: 6px 10px;
   font-size: 12px;
 }
@@ -344,6 +346,12 @@ button.primary:hover:not(:disabled) {
   .piece {
     width: 20px;
     height: 20px;
+  }
+  .heading {
+    flex-wrap: wrap;
+  }
+  .heading-actions {
+    margin-left: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {
