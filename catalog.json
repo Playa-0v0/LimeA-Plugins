@@ -6,17 +6,17 @@
       "name": "鲨鱼咬牙",
       "description": "按下鲨鱼的牙齿，看看谁会碰到那颗危险牙齿。支持单人挑战和角色陪玩，随机先手、轮流按牙、累计计分，还可以再来一局。每段聊天独立保存进度，中断后可继续。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。角色陪玩使用当前会话模型。需要支持插件 API 6 的 LimeA。",
       "author": "Playa",
-      "version": "0.3.3",
+      "version": "0.3.4",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data"
       ],
-      "archive": "packages/games.shark/0.3.3.zip",
-      "sha256": "e844a4fff45d0eee24664d66cace3eb9b5889a052d2c2fcdf84432b43f682c85",
+      "archive": "packages/games.shark/0.3.4.zip",
+      "sha256": "71ab7a516462f995774121a32106a9d1f903bd5f0fb253286998995dcd5d61b1",
       "icon": {
-        "path": "icons/games.shark-0.3.3.png",
-        "sha256": "691d051c2f53ac82cee7b45a67094506b8ba52f129213a31e4213732ddda131c"
+        "path": "icons/games.shark-0.3.4.png",
+        "sha256": "fef221a79f11861dc58246d12316cffb5aa0c9140f328e20485e059f6286453b"
       }
     }
   ]
