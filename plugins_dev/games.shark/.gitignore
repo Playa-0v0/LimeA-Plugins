@@ -1,0 +1,6 @@
+node_modules/
+dist/
+artifacts/
+
+# 本机界面设计上下文
+/PRODUCT.md

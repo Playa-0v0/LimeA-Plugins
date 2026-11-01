@@ -1,0 +1,74 @@
+{
+  "id": "games.shark",
+  "name": "鲨鱼咬牙",
+  "version": "0.3.5",
+  "apiVersion": 6,
+  "hostVersion": ">=0.1.0 <1.0.0",
+  "entry": "backend.mjs",
+  "permissions": [
+    "fs:plugin-data"
+  ],
+  "panels": [
+    {
+      "id": "games.shark.play",
+      "name": "鲨鱼咬牙",
+      "placement": "miniGame",
+      "modes": [
+        "chat"
+      ],
+      "entry": "panel.mjs",
+      "icon": "assets/icon.png"
+    }
+  ],
+  "resources": [
+    "assets/game-shark.glb"
+  ],
+  "tools": [
+    {
+      "id": "start",
+      "name": "鲨鱼陪玩",
+      "description": "开始或继续与用户一起玩的鲨鱼牙齿游戏。每局随机先手，轮流按牙，按到危险牙齿者输。本工具在用户回合或等待再来一局选择时等待，切勿替用户操作。先简短回应上一局结果，再调用本工具等待用户决定。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "modes": [
+        "chat"
+      ],
+      "panelId": "games.shark.play"
+    },
+    {
+      "id": "press_tooth",
+      "name": "选择牙齿",
+      "description": "在鲨鱼陪玩中选择一颗剩余牙齿。只能在模型回合使用，roundId 和 revision 必须取自最新状态。执行后自动等待用户的回合。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "roundId": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "tooth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          }
+        },
+        "required": [
+          "roundId",
+          "revision",
+          "tooth"
+        ],
+        "additionalProperties": false
+      },
+      "modes": [
+        "chat"
+      ],
+      "panelId": "games.shark.play"
+    }
+  ]
+}
