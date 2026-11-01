@@ -1,5 +1,13 @@
 import { randomInt, randomUUID } from 'node:crypto';
-import { place, publicMatch, textBoard, toolState, roundRecord } from './rules.mjs';
+import {
+  place,
+  publicMatch,
+  textBoard,
+  toolState,
+  roundRecord,
+  playerInstruction,
+  MODEL_PERSPECTIVE,
+} from './rules.mjs';
 
 export const migrations = [
   {
@@ -165,7 +173,7 @@ export async function createGame(
       }),
     history: (_input, context) =>
       serial(async () => ({
-        perspective: '用户是与你下棋的人；你是参与对局的角色。moves 按落子顺序记录。',
+        perspective: `${MODEL_PERSPECTIVE} moves 按落子顺序记录，每局颜色以该局 humanColor、modelColor 为准。`,
         rounds: await history(key(context)),
       })),
     load: (context) => serial(async () => publicMatch(await read(key(context)))),
@@ -275,19 +283,20 @@ export async function createGame(
       const match = await serial(() => read(key(context)));
       if (!match || match.runId !== context.runId || match.status === 'paused') return null;
       const state = JSON.stringify(toolState(match));
+      const players = playerInstruction(match);
       if (match.status === 'ended')
         return {
           revision: String(match.revision),
           required: false,
           toolIds: [],
-          instruction: `用户手动结束了五子棋，保留已结算比分，未完成的本局不计输赢。状态：${state}。简短回应并结束，不得重新开局。`,
+          instruction: `${players}\n用户手动结束了五子棋，保留已结算比分，未完成的本局不计输赢。状态：${state}。简短回应并结束，不得重新开局。`,
         };
       if (match.status === 'round-over')
         return {
           revision: String(match.revision),
           required: true,
           toolIds: ['start'],
-          instruction: `五子棋本局已结束，后台判定结果：${state}。先按当前角色口吻用一句话宣布结果，无需长篇复盘。${match.replayRequested ? '用户已选择再来一局，调用 start 开始下一局。' : '界面已显示再来一局和下次再玩，调用 start 等待用户选择，不要再次询问或替用户决定。'}`,
+          instruction: `${players}\n五子棋本局已结束，后台判定结果：${state}。先按当前角色口吻用一句话宣布结果，无需长篇复盘。${match.replayRequested ? '用户已选择再来一局，调用 start 开始下一局。' : '界面已显示再来一局和下次再玩，调用 start 等待用户选择，不要再次询问或替用户决定。'}`,
         };
       if (match.status === 'active' && match.turn === 'model') {
         const assisted = match.settings?.mode === 'engine';
@@ -308,7 +317,7 @@ export async function createGame(
           revision: String(match.revision),
           required: true,
           toolIds: ['place_stone'],
-          instruction: `轮到你下五子棋。15×15，无禁手；黑棋先行，横竖斜连续5子或以上获胜。列A..O从左到右，行1..15从上到下；X=黑棋，O=白棋，.=空点。你执${match.black === 'model' ? '黑(X)' : '白(O)'}，只可选择空点。以以下完整最新棋盘为准，不依赖旧对话猜测，不替用户落子，也不自行宣判胜负。用 place_stone 传入当前 roundId、revision、row、column。可先简短说一句陪玩的话。
+          instruction: `${players}\n轮到你下五子棋。15×15，无禁手；黑棋先行，横竖斜连续5子或以上获胜。列A..O从左到右，行1..15从上到下；X=黑棋，O=白棋，.=空点。只可选择空点。以以下完整最新棋盘为准，不依赖旧对话猜测，不替用户落子，也不自行宣判胜负。用 place_stone 传入当前 roundId、revision、row、column。可先简短说一句陪玩的话。
 状态：${state}
 棋盘：\n${textBoard(match)}${calculation}`,
         };

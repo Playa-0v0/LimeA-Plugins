@@ -1,8 +1,9 @@
 {
   "id": "games.gomoku",
   "name": "五子棋",
-  "version": "0.2.0",
-  "apiVersion": 6,
+  "version": "0.2.1",
+  "apiVersion": 7,
+  "settings": "settings.mjs",
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
   "permissions": ["fs:plugin-data"],

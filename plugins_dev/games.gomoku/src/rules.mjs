@@ -2,6 +2,19 @@ export const SIZE = 15;
 export const COLUMNS = 'ABCDEFGHIJKLMNO';
 export const other = (player) => (player === 'human' ? 'model' : 'human');
 export const colorOf = (match, player) => (player === match.black ? 'black' : 'white');
+export const symbolOf = (match, player) => (player === match.black ? 'X' : 'O');
+export const MODEL_PERSPECTIVE =
+  '你是参与对局的当前角色，model 表示你自己，human 表示用户（你的对手）；落子、轮次、胜者和比分均使用这组固定身份，与黑白颜色无关。';
+
+export function playerInstruction(match) {
+  const describe = (player) => {
+    const stones = match.moves
+      .filter((move) => move.player === player)
+      .map((move) => `${move.column}${move.row}`);
+    return `${player === 'model' ? '你（当前角色，model）' : '用户（你的对手，human）'}执${colorOf(match, player) === 'black' ? '黑棋' : '白棋'}（${symbolOf(match, player)}），已有落点：${stones.length ? stones.join('、') : '无'}`;
+  };
+  return `${MODEL_PERSPECTIVE}\n本局身份：${describe('model')}；${describe('human')}。本局颜色固定，续局可能重新分配；以本轮身份为准，不沿用上一局颜色，不把对手的连线当作自己的连线。`;
+}
 
 export function coordinate(row, column) {
   if (
@@ -75,6 +88,7 @@ export function roundRecord(match) {
     matchId: match.matchId,
     roundId: match.roundId,
     roundNumber: match.roundNumber,
+    perspective: MODEL_PERSPECTIVE,
     humanColor: colorOf(match, 'human'),
     modelColor: colorOf(match, 'model'),
     winner: match.winner,
@@ -105,7 +119,11 @@ export function toolState(match) {
     roundNumber: match.roundNumber,
     status: match.status,
     turn: match.turn,
+    perspective: MODEL_PERSPECTIVE,
     modelColor: colorOf(match, 'model'),
+    humanColor: colorOf(match, 'human'),
+    modelSymbol: symbolOf(match, 'model'),
+    humanSymbol: symbolOf(match, 'human'),
     moveCount: match.moves.length,
     lastMove: match.moves.at(-1) ?? null,
     winner: match.winner,

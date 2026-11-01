@@ -1,4 +1,5 @@
 import css from './panel.css';
+import { mount as mountSettings } from './settings.mjs';
 import { SIZE, COLUMNS } from './rules.mjs';
 import { createStoneSound } from './sound.mjs';
 
@@ -25,15 +26,7 @@ export function mount(container, context) {
   const dialog = document.createElement('dialog');
   dialog.className = 'settings-dialog';
   dialog.setAttribute('aria-labelledby', 'gomoku-settings-title');
-  dialog.innerHTML = `<div class="dialog-heading"><h3 id="gomoku-settings-title">${tr('对局设置', 'Game settings')}</h3><button class="close-settings" type="button" aria-label="${tr('关闭设置', 'Close settings')}">×</button></div>
-    <p class="settings-intro">${tr('选择角色如何思考下一步。', 'Choose how your character considers its next move.')}</p>
-    <form><fieldset class="mode-options"><legend>${tr('落子方式', 'Move selection')}</legend>
-    <label><input type="radio" name="mode" value="model"><span><strong>${tr('模型落子', 'Model only')}</strong><small>${tr('角色自己读棋盘、想策略，棋力取决于当前模型。', 'Your character reads the board and chooses its own strategy.')}</small></span></label>
-    <label><input type="radio" name="mode" value="engine"><span><strong>${tr('引擎辅助', 'Engine assisted')}</strong><small>${tr('计算三个候选落点及评分，由角色决定最终落子。', 'Calculate up to three scored candidates. Your character makes the final choice.')}</small></span></label></fieldset>
-    <fieldset class="difficulty-options" hidden><legend>${tr('分析难度', 'Analysis level')}</legend><div>
-    <label><input type="radio" name="difficulty" value="normal"><span><strong>${tr('普通', 'Normal')}</strong><small>${tr('较快分析，轻松陪玩', 'Quick analysis, casual play')}</small></span></label>
-    <label><input type="radio" name="difficulty" value="hard"><span><strong>${tr('困难', 'Hard')}</strong><small>${tr('多想几步，寻找攻防机会', 'Deeper search for threats')}</small></span></label></div></fieldset>
-    <p class="settings-feedback" role="status"></p><div class="settings-footer"><small>${tr('自动保存，从下一局生效。所有聊天共用此设置。', 'Saved automatically. Applies next round, across chats.')}</small><button class="done-settings primary" type="button">${tr('完成', 'Done')}</button></div></form>`;
+  dialog.innerHTML = `<div class="dialog-heading"><h3 id="gomoku-settings-title">${tr('对局设置', 'Game settings')}</h3><button class="close-settings" type="button" aria-label="${tr('关闭设置', 'Close settings')}">×</button></div><div class="settings-body"></div><div class="settings-footer"><button class="done-settings primary" type="button">${tr('完成', 'Done')}</button></div>`;
   root.append(dialog);
   const cells = $('.cells'),
     status = $('.status'),
@@ -53,83 +46,21 @@ export function mount(container, context) {
   let cancelRun = () => {},
     cancelVisibility = () => {};
   const clicks = new AbortController();
-  let settingsReady = false,
-    settingsBusy = false,
-    settingsEpoch = 0;
-  const settingFeedback = dialog.querySelector('.settings-feedback');
-  const settingsForm = dialog.querySelector('form');
-  const setSettings = (settings) => {
-    for (const input of settingsForm.querySelectorAll('input'))
-      input.checked = settings[input.name] === input.value;
-    dialog.querySelector('.difficulty-options').hidden = settings.mode !== 'engine';
-  };
-  const settingsDisabled = (disabled) => {
-    for (const input of settingsForm.querySelectorAll('input')) input.disabled = disabled;
-  };
+  let closeSettings = () => {};
   settingsButton.addEventListener(
     'click',
-    async () => {
+    () => {
       if (dialog.open) return;
+      closeSettings();
       dialog.showModal();
-      const version = ++settingsEpoch;
-      settingsReady = false;
-      settingsDisabled(true);
-      settingFeedback.textContent = tr('正在读取设置…', 'Loading settings…');
-      try {
-        const settings = await context.command('load-settings', {});
-        if (disposed || version !== settingsEpoch || !dialog.open) return;
-        setSettings(settings);
-        settingsReady = true;
-        settingFeedback.textContent = '';
-      } catch {
-        if (disposed || version !== settingsEpoch || !dialog.open) return;
-        settingFeedback.textContent = tr(
-          '设置读取失败，请关闭后重试。',
-          'Could not load settings. Close and retry.',
-        );
-      } finally {
-        if (version === settingsEpoch) settingsDisabled(!settingsReady || settingsBusy);
-      }
-    },
-    { signal: clicks.signal },
-  );
-  settingsForm.addEventListener('submit', (event) => event.preventDefault(), {
-    signal: clicks.signal,
-  });
-  settingsForm.addEventListener(
-    'change',
-    async () => {
-      if (!settingsReady || settingsBusy) return;
-      const values = Object.fromEntries(new FormData(settingsForm));
-      const version = settingsEpoch;
-      setSettings(values);
-      settingsBusy = true;
-      settingsDisabled(true);
-      settingFeedback.textContent = tr('正在保存…', 'Saving…');
-      try {
-        const settings = await context.command('save-settings', values);
-        if (disposed || version !== settingsEpoch || !dialog.open) return;
-        setSettings(settings);
-        settingFeedback.textContent = tr('已保存，下一局生效', 'Saved for the next round');
-      } catch {
-        if (disposed || version !== settingsEpoch || !dialog.open) return;
-        settingsReady = false;
-        settingFeedback.textContent = tr(
-          '保存未确认，请关闭后重新读取设置。',
-          'Save not confirmed. Close and reload settings.',
-        );
-      } finally {
-        settingsBusy = false;
-        settingsDisabled(!settingsReady);
-      }
+      closeSettings = mountSettings(dialog.querySelector('.settings-body'), context);
     },
     { signal: clicks.signal },
   );
   dialog.addEventListener(
     'close',
     () => {
-      settingsEpoch++;
-      settingsReady = false;
+      if (!dialog.open) closeSettings();
     },
     { signal: clicks.signal },
   );
@@ -500,6 +431,7 @@ export function mount(container, context) {
     clearTimeout(timer);
     clicks.abort();
     sound.dispose();
+    closeSettings();
     dialog.close();
     cancelRun();
     cancelVisibility();

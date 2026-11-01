@@ -48,6 +48,9 @@ const moveGate = new Promise((resolve) => {
 let holdMove = false;
 let historyRequests = 0,
   historyReplies = 0;
+let parameterFailures = 0,
+  parameterErrorFeedback = 0,
+  failedSnapshot;
 const engineChoices = [];
 const recallQuestion = '刚才我们的五子棋第一局谁赢了，最后一手下在哪里？';
 function saved() {
@@ -131,6 +134,18 @@ const server = createServer(async (req, res) => {
     } else if (move) {
       const state = saved();
       assert.equal(state.turn, 'model');
+      if (failedSnapshot) {
+        assert.equal(state.roundId, failedSnapshot.roundId);
+        assert.equal(
+          state.revision,
+          failedSnapshot.revision,
+          'rejected calls cannot advance the board',
+        );
+        const lastTool = body.messages.filter((message) => message.role === 'tool').at(-1);
+        assert.ok(JSON.stringify(lastTool?.content).includes(failedSnapshot.error));
+        parameterErrorFeedback++;
+        failedSnapshot = undefined;
+      }
       const system = body.messages
         .filter((message) => message.role === 'system')
         .map((message) =>
@@ -138,6 +153,22 @@ const server = createServer(async (req, res) => {
         )
         .join('\n');
       assert.ok(system.includes('A B C D E F G H I J K L M N O'));
+      assert.ok(system.includes('model 表示你自己，human 表示用户（你的对手）'));
+      for (const [player, label] of [
+        ['model', '你（当前角色，model）'],
+        ['human', '用户（你的对手，human）'],
+      ]) {
+        const isBlack = state.black === player;
+        const stones = state.moves
+          .filter((stone) => stone.player === player)
+          .map((stone) => `${stone.column}${stone.row}`);
+        assert.ok(
+          system.includes(
+            `${label}执${isBlack ? '黑棋（X）' : '白棋（O）'}，已有落点：${stones.join('、') || '无'}`,
+          ),
+          `${player}'s identity and stones must reach the real model request`,
+        );
+      }
       for (let row = 1; row <= 15; row++) {
         const line = [...cols]
           .map((column) => {
@@ -169,20 +200,31 @@ const server = createServer(async (req, res) => {
           point = analysis.candidates[1];
           engineChoices.push({ roundId: state.roundId, row: point.row, column: point.column });
         }
+        const parameters = {
+          roundId: state.roundId,
+          revision: state.revision,
+          row: point.row,
+          column: point.column,
+        };
         if (invalidMove && state.moves.length >= 3) {
           invalidMove = false;
-          point = state.moves[0];
-        }
-        stream = readProtocolStream(
-          'chat-completions',
-          {
+          parameters.row = state.moves[0].row;
+          parameters.column = state.moves[0].column;
+        } else if (state.moves.length >= 3 && parameterFailures < 2) {
+          // Reproduce the reported sequence: missing roundId, then an invented revision.
+          if (parameterFailures === 0) delete parameters.roundId;
+          else parameters.revision++;
+          failedSnapshot = {
             roundId: state.roundId,
             revision: state.revision,
-            row: point.row,
-            column: point.column,
-          },
-          { name: move, callId: `move-${requests}` },
-        );
+            error: parameterFailures === 0 ? 'plugin-invalid-input' : 'plugin-io-failed',
+          };
+          parameterFailures++;
+        }
+        stream = readProtocolStream('chat-completions', parameters, {
+          name: move,
+          callId: `move-${requests}`,
+        });
       }
     } else stream = protocolStream('chat-completions', { chunks: ['好呀，下次再一起下棋。'] });
     res.writeHead(200, { 'content-type': 'text/event-stream' });
@@ -307,6 +349,29 @@ try {
     });
   }, url);
   await page.reload();
+  await page.locator('.workspace-root:visible .sidebar-settings').click();
+  await page
+    .locator('.settings-navigation:visible')
+    .getByRole('button', { name: '插件', exact: true })
+    .click();
+  const pluginCard = page.locator('.plugin-manager-card').filter({ hasText: 'games.gomoku' });
+  await pluginCard.getByRole('button', { name: '设置', exact: true }).click();
+  const managerSettings = page.getByRole('dialog', { name: '五子棋 · 设置' });
+  await managerSettings.locator('input[value=engine]').check();
+  await managerSettings.getByText('已保存，下一局生效', { exact: true }).waitFor();
+  await managerSettings.locator('input[value=hard]').check();
+  await managerSettings.getByText('已保存，下一局生效', { exact: true }).waitFor();
+  await page.screenshot({ path: join(artifacts, 'gomoku-manager-settings.png') });
+  assert.equal(saved(), null, 'settings must not start a game');
+  assert.equal(
+    (await page.evaluate(() => window.limea.listSessions({ conversationMode: 'chat' }))).items
+      .length,
+    0,
+  );
+  await managerSettings.locator('input[value=model]').check();
+  await managerSettings.getByText('已保存，下一局生效', { exact: true }).waitFor();
+  await page.keyboard.press('Escape');
+  await page.locator('.settings-back:visible').click();
   let ws = await openGame(page);
   const cards = ws.locator('.conversation-character-picker .character-tile');
   const selectedIndex = await cards.evaluateAll((elements) =>
@@ -531,6 +596,8 @@ try {
   assert.deepEqual(serverErrors, []);
   assert.equal(missMove, false);
   assert.equal(invalidMove, false);
+  assert.equal(parameterFailures, 2);
+  assert.equal(parameterErrorFeedback, 2);
   console.log(
     JSON.stringify({
       result: 'passed',
@@ -538,6 +605,7 @@ try {
       validatedBoards,
       missingToolRetry: true,
       illegalMoveRetry: true,
+      consecutiveFailureRecovery: true,
       humanWait: true,
       win: true,
       replay: true,
@@ -552,6 +620,7 @@ try {
       engineCandidates: engineChoices.length,
       modelFinalChoice: true,
       settingsRestart: true,
+      managerSettings: true,
       historyRequests,
       historyReplies,
     }),

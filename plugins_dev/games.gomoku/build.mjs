@@ -30,6 +30,16 @@ await build({
   minify: true,
   loader: { '.css': 'text' },
 });
+await build({
+  entryPoints: ['src/settings.mjs'],
+  outfile: 'dist/settings.mjs',
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  target: 'chrome140',
+  minify: true,
+  loader: { '.css': 'text' },
+});
 await sharp('assets/icon.svg').resize(192, 192).png().toFile('dist/assets/icon.png');
 await cp('limea.plugin.json', 'dist/limea.plugin.json');
 await cp('LICENSE', 'dist/LICENSE');

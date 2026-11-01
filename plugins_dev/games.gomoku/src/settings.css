@@ -1,0 +1,93 @@
+.gomoku-settings {
+  --ink: var(--foreground, #ededed);
+  --soft: var(--muted-foreground, #b5b5b5);
+  --line: var(--border, #353535);
+  --green: var(--primary, #adeb78);
+  color: var(--ink);
+  font: inherit;
+}
+.gomoku-settings * {
+  box-sizing: border-box;
+}
+.gomoku-settings [hidden] {
+  display: none !important;
+}
+.gomoku-settings .settings-intro {
+  margin: 8px 0 24px;
+  color: var(--soft);
+  font-size: 13px;
+}
+.gomoku-settings fieldset {
+  border: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  min-width: 0;
+}
+.gomoku-settings legend {
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.gomoku-settings label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.gomoku-settings label + label {
+  border-top: 1px solid var(--line);
+}
+.gomoku-settings input {
+  accent-color: var(--green);
+  margin: 3px 0 0;
+  flex: none;
+}
+.gomoku-settings input:focus-visible,
+.gomoku-settings button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.gomoku-settings strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.gomoku-settings small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 5px;
+  color: var(--soft);
+}
+.gomoku-settings .difficulty-options > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+.gomoku-settings .difficulty-options label + label {
+  border: 0;
+}
+.gomoku-settings .settings-feedback {
+  margin: 0 0 12px;
+  min-height: 20px;
+  color: var(--soft);
+  font-size: 12px;
+}
+.gomoku-settings .settings-feedback[role='alert'] {
+  color: var(--destructive, #ff9284);
+}
+.gomoku-settings .settings-note {
+  margin-top: 12px;
+}
+.gomoku-settings button {
+  font: inherit;
+  cursor: pointer;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.gomoku-settings button:hover {
+  background: var(--muted, #282828);
+}

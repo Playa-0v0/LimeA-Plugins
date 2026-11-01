@@ -263,6 +263,80 @@ async function until(game, predicate) {
   throw new Error('state-timeout');
 }
 
+for (const black of ['human', 'model']) {
+  test(`${black}先手时双方身份贯穿工具结果、落点提示、结算、换色与恢复`, async () => {
+    const { sqlite, db } = fixture();
+    let round = 0;
+    let game = await createGame(db, {
+      first: () => (round++ ? (black === 'human' ? 'model' : 'human') : black),
+    });
+    const verify = async (result, runId = 'run') => {
+      const state = await game.load(scope);
+      const modelColor = state.black === 'model' ? 'black' : 'white';
+      const humanColor = state.black === 'human' ? 'black' : 'white';
+      const modelSymbol = modelColor === 'black' ? 'X' : 'O';
+      const humanSymbol = humanColor === 'black' ? 'X' : 'O';
+      assert.equal(result.modelColor, modelColor);
+      assert.equal(result.humanColor, humanColor);
+      assert.equal(result.modelSymbol, modelSymbol);
+      assert.equal(result.humanSymbol, humanSymbol);
+      assert.match(result.perspective, /model 表示你自己，human 表示用户（你的对手）/);
+      const policy = await game.policy(call('identity-policy', undefined, runId));
+      for (const [player, color, symbol, label] of [
+        ['model', modelColor, modelSymbol, '你（当前角色，model）'],
+        ['human', humanColor, humanSymbol, '用户（你的对手，human）'],
+      ]) {
+        const stones = state.moves
+          .filter((move) => move.player === player)
+          .map((move) => `${move.column}${move.row}`);
+        assert.ok(
+          policy.instruction.includes(
+            `${label}执${color === 'black' ? '黑棋' : '白棋'}（${symbol}），已有落点：${stones.join('、') || '无'}`,
+          ),
+        );
+      }
+      return state;
+    };
+    try {
+      const starting = game.start({}, call('identity-start'));
+      let state = await until(game, (state) => state.status === 'active');
+      if (state.turn === 'human') await game.act(action(state, 'move', 8, 'H'));
+      state = await verify(await starting);
+      const moving = game.modelMove(input(state, 15, 'O'), call('identity-move'));
+      state = await until(game, (state) => state.turn === 'human');
+      await game.act(action(state, 'move', 1, 'A'));
+      state = await verify(await moving);
+      const lastMove = game.modelMove(input(state, 13, 'O'), call('identity-last-move'));
+      state = await until(game, (state) => state.turn === 'human');
+      await game.act(action(state, 'resign'));
+      const result = await lastMove;
+      await verify(result);
+      assert.equal(result.roundRecord.modelColor, result.modelColor);
+      assert.equal(result.roundRecord.humanColor, result.humanColor);
+      assert.equal(result.roundRecord.perspective, result.perspective);
+      const replay = game.start({}, call('identity-replay'));
+      state = await until(game, (state) => state.status === 'waiting-replay');
+      state = await game.act(action(state, 'replay'));
+      assert.notEqual(state.black, black);
+      if (state.turn === 'human') await game.act(action(state, 'move', 2, 'B'));
+      const nextRound = await replay;
+      await verify(nextRound);
+      await game.finished(call('identity-finish'));
+      await game.dispose();
+      game = await createGame(db, {
+        first: () => {
+          throw new Error('resuming must retain the existing colors');
+        },
+      });
+      const resumed = await game.start({}, call('identity-resume', undefined, 'run2'));
+      await verify(resumed, 'run2');
+    } finally {
+      await game.dispose();
+      sqlite.close();
+    }
+  });
+}
+
 test('四个方向、棋盘边缘、六连及空隙判定由规则层决定', () => {
   for (const [row, col, dy, dx] of [
     [1, 0, 0, 1],
