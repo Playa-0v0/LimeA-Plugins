@@ -1,0 +1,10 @@
+{
+  "author": "Playa",
+  "category": "games",
+  "description": "和当前角色轮流画画、猜词。后台独立出题，画家三选一，双方获得字数提示；用户边画角色边猜，角色也能看着实际画面补画。支持闭合区域填色、画笔与操作音效、撤销重做、暂停恢复和聊天内轮次回顾，不设积分。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件接口版本 8 的 LimeA 和支持图片输入的模型。",
+  "icon": "icon.png",
+  "license": "MIT",
+  "assetLicense": "plugins_dev/games.draw_guess/ASSETS.md",
+  "repository": "plugins_dev/games.draw_guess",
+  "documentation": "plugins_dev/games.draw_guess/README.md"
+}

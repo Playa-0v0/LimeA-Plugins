@@ -1,0 +1,242 @@
+:host {
+  font-family: inherit;
+  color: var(--foreground, #ededed);
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+.draw-guess {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  gap: 18px;
+  padding: 22px;
+}
+.heading,
+footer,
+.actions,
+.setup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+p {
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
+.muted {
+  color: var(--muted-foreground, #b5b5b5);
+  font-size: 12px;
+}
+.clock {
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 500;
+}
+.sound-settings {
+  position: relative;
+  font-size: 13px;
+}
+.sound-settings summary {
+  cursor: pointer;
+  padding: 7px 10px;
+  border: 1px solid var(--border, #353535);
+  border-radius: 8px;
+}
+.sound-options {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 3;
+  width: 200px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border, #353535);
+  border-radius: 10px;
+  background: var(--background, #171717);
+}
+.sound-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.sound-options input[type='checkbox'] {
+  accent-color: var(--primary, #adeb78);
+  margin: 0;
+}
+.sound-options input[type='range'] {
+  accent-color: var(--primary, #adeb78);
+  min-width: 0;
+  flex: 1;
+  width: 0;
+  padding: 0;
+  border: 0;
+}
+.sound-settings summary:focus-visible {
+  outline: 2px solid var(--primary, #adeb78);
+  outline-offset: 3px;
+}
+button,
+select,
+input {
+  font: inherit;
+  color: var(--foreground, #ededed);
+  border: 1px solid var(--border, #353535);
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+button,
+select {
+  cursor: pointer;
+}
+button:hover:not(:disabled) {
+  background: var(--muted, #282828);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary, #adeb78);
+  outline-offset: 3px;
+}
+.primary,
+.primary:hover:not(:disabled) {
+  color: var(--primary-foreground, #1c2b12);
+  background: var(--primary, #adeb78);
+  border-color: transparent;
+}
+.primary:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+select option {
+  background: var(--background, #171717);
+}
+.setup {
+  justify-content: flex-start;
+  padding: 12px 0;
+}
+.round-status {
+  min-height: 20px;
+  font-size: 13px;
+  color: var(--muted-foreground, #b5b5b5);
+}
+.choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.word-choice {
+  font-size: 18px;
+  padding: 24px 8px;
+  overflow-wrap: anywhere;
+}
+.word-choice:hover:not(:disabled) {
+  border-color: var(--primary, #adeb78);
+}
+.private-word {
+  font-size: 13px;
+  color: var(--primary, #adeb78);
+}
+.word-hint {
+  color: var(--muted-foreground, #b5b5b5);
+  font-size: 13px;
+}
+.play-area {
+  position: relative;
+  min-width: 0;
+}
+.play-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.play-area[aria-busy='true'] {
+  min-height: 320px;
+}
+.word-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 88%);
+  color: #ededed;
+  font-size: 14px;
+}
+.round-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+  border-block: 1px solid var(--border, #353535);
+}
+.round-result strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+.drawing {
+  min-width: 0;
+  width: 100%;
+}
+.guesses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.guess {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--muted, #282828);
+  overflow-wrap: anywhere;
+}
+.guess-form {
+  display: flex;
+  gap: 8px;
+}
+.guess-form input {
+  min-width: 0;
+  flex: 1;
+}
+input::placeholder {
+  color: var(--muted-foreground, #b5b5b5);
+}
+footer {
+  margin-top: auto;
+  padding-top: 6px;
+}
+.error {
+  color: var(--destructive, #ff998a);
+  font-size: 13px;
+}
+@media (max-width: 480px) {
+  .draw-guess {
+    padding: 14px;
+    gap: 14px;
+  }
+  .word-choice {
+    font-size: 15px;
+    padding-block: 18px;
+  }
+}

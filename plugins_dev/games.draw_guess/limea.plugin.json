@@ -1,0 +1,43 @@
+{
+  "id": "games.draw_guess",
+  "name": "你画我猜",
+  "version": "0.1.2",
+  "apiVersion": 8,
+  "hostVersion": ">=0.1.0 <1.0.0",
+  "entry": "backend.mjs",
+  "permissions": ["fs:plugin-data", "model:private-task"],
+  "resources": [
+    "assets/audio/pencil.ogg",
+    "assets/audio/erase.ogg",
+    "assets/audio/fill.ogg",
+    "assets/audio/undo.ogg",
+    "assets/audio/redo.ogg"
+  ],
+  "panels": [
+    {
+      "id": "games.draw_guess.play",
+      "name": "你画我猜",
+      "entry": "panel.mjs",
+      "icon": "icon.png",
+      "placement": "miniGame",
+      "modes": ["chat"]
+    }
+  ],
+  "tools": [
+    {
+      "id": "play",
+      "name": "你画我猜",
+      "description": "与用户玩你画我猜。打开画板，让用户与当前角色轮流画画、猜词。后台独立生成题库，每轮画家三选一；猜测方看不到答案。需要支持图片输入的模型。本工具负责整场交互并等待用户，不要自行提供题目、猜测答案或重复开局。结束后根据工具返回的公开结果自然回顾。",
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false },
+      "modes": ["chat"],
+      "panelId": "games.draw_guess.play"
+    },
+    {
+      "id": "history",
+      "name": "你画我猜记录",
+      "description": "读取当前聊天最近已揭晓的你画我猜轮次，包含答案、画家、公开猜测与结果；不泄露正在进行的题目或候选。",
+      "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false },
+      "modes": ["chat"]
+    }
+  ]
+}
