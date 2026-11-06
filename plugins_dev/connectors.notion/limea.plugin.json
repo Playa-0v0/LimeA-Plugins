@@ -1,10 +1,11 @@
 {
   "id": "connectors.notion",
   "name": "Notion 只读",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "apiVersion": 10,
   "hostVersion": ">=0.1.0",
   "entry": "backend.mjs",
+  "toolPresentation": { "name": "Notion", "icon": "assets/icon.png" },
   "connections": [
     {
       "provider": "notion",
@@ -14,7 +15,7 @@
   "tools": [
     {
       "id": "search",
-      "name": "搜索 Notion 页面",
+      "name": "搜索页面",
       "description": "搜索用户授权给 LimeA 的 Notion 页面标题。不会搜索页面正文。结果只覆盖已共享页面；空结果不代表工作区无内容。nextCursor 可用于下一页。 返回 connection-result-too-large 时，使用更小的 pageSize（最小 1）和同一 cursor 重试。",
       "inputSchema": {
         "type": "object",
@@ -40,7 +41,7 @@
     },
     {
       "id": "page",
-      "name": "读取 Notion 页面信息",
+      "name": "读取页面信息",
       "description": "读取一个已授权页面的标题与受支持属性。pageId 使用搜索结果里的页面 ID；正文用 children 读取。",
       "inputSchema": {
         "type": "object",
@@ -56,7 +57,7 @@
     },
     {
       "id": "children",
-      "name": "读取 Notion 内容块",
+      "name": "读取页面内容",
       "description": "分页读取页面或块的直接子块（每页最多 50 个），以文本形式返回。hasChildren 的块需要用其 id 再调用本工具；不下载附件、不自动访问外链。nextCursor 可用于下一页。 返回 connection-result-too-large 时，使用更小的 pageSize（最小 1）和同一 cursor 重试。",
       "inputSchema": {
         "type": "object",
