@@ -1,7 +1,7 @@
 {
   "id": "connectors.notion",
   "name": "Notion 只读",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "apiVersion": 10,
   "hostVersion": ">=0.1.0",
   "entry": "backend.mjs",
@@ -83,6 +83,8 @@
   "page": {
     "entry": "page.mjs",
     "description": "连接你的 Notion 工作区，让 LimeA 搜索和阅读你共享的页面。",
-    "author": "Playa"
-  }
+    "author": "Playa",
+    "illustration": "assets/banner.png"
+  },
+  "resources": ["assets/icon.png"]
 }

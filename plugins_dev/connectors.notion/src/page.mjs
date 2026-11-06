@@ -10,28 +10,33 @@ export function mount(container, context) {
   root.className = 'notion-page';
   root.innerHTML = `
     <section class="account" aria-labelledby="notion-account-title">
-      <h2 id="notion-account-title"></h2>
+      <h2 id="notion-account-title"><span class="section-icon" data-icon="link"></span><span class="heading-label"></span></h2>
       <div class="account-row">
+        <img class="account-icon" alt="">
         <div class="account-summary"><strong class="account-name"></strong><p class="account-hint"></p></div>
         <div class="account-actions"><span data-action="authorize"></span><span data-action="resume"></span><span data-action="cancel"></span><span data-action="refresh"></span><span data-action="disconnect"></span></div>
       </div>
       <p class="account-status" role="status" aria-live="polite"></p>
       <div class="account-error" role="alert"><p></p><span data-action="retry"></span></div>
     </section>
-    <section class="features"><h2></h2><ul>
-      <li><h3></h3><p></p></li><li><h3></h3><p></p></li><li><h3></h3><p></p></li>
+    <section class="features"><h2><span class="section-icon" data-icon="blocks"></span><span class="heading-label"></span><span class="section-count">3</span></h2><ul>
+      <li><span class="feature-icon" data-icon="search"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="file-text"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="list-tree"></span><div><h3></h3><p></p></div></li>
     </ul></section>
-    <section class="usage"><h2></h2><p></p></section>`;
+    <section class="usage"><h2><span class="section-icon" data-icon="message-square"></span><span class="heading-label"></span></h2><p></p><blockquote></blockquote></section>`;
   container.replaceChildren(style, root);
   const query = (selector) => root.querySelector(selector);
-  query('#notion-account-title').textContent = t.accountTitle;
-  query('.features h2').textContent = t.featuresTitle;
+  query('#notion-account-title .heading-label').textContent = t.accountTitle;
+  query('.account-icon').src = new URL('assets/icon.png', context.resourceBase).href;
+  query('.features h2 .heading-label').textContent = t.featuresTitle;
   [...root.querySelectorAll('.features li')].forEach((item, i) => {
     item.querySelector('h3').textContent = [t.searchTitle, t.pageTitle, t.blocksTitle][i];
     item.querySelector('p').textContent = [t.searchDetail, t.pageDetail, t.blocksDetail][i];
   });
-  query('.usage h2').textContent = t.usageTitle;
+  query('.usage h2 .heading-label').textContent = t.usageTitle;
   query('.usage p').textContent = t.usage;
+  query('.usage blockquote').textContent = t.usageExample;
   let view,
     pending = false,
     polling = false,
@@ -39,6 +44,13 @@ export function mount(container, context) {
     disposed = false,
     error = '';
   const handles = new Map();
+  const iconHandles = [];
+  for (const slot of root.querySelectorAll('[data-icon]')) {
+    const name = slot.dataset.icon;
+    if (context.controls.icons?.includes(name)) {
+      iconHandles.push(context.controls.mount(slot, { type: 'icon', name, size: 18 }));
+    } else slot.hidden = true;
+  }
   const alive = () => !disposed && !context.signal.aborted;
   const labels = {
     authorize: t.connect,
@@ -48,6 +60,14 @@ export function mount(container, context) {
     disconnect: t.disconnect,
     retry: t.retry,
   };
+  const actionIcons = {
+    authorize: 'external-link',
+    resume: 'external-link',
+    refresh: 'refresh-cw',
+    disconnect: 'unplug',
+  };
+  const buttonIcon = (action) =>
+    context.controls.icons?.includes(actionIcons[action]) ? { icon: actionIcons[action] } : {};
   for (const [action, label] of Object.entries(labels)) {
     const slot = query(`[data-action="${action}"]`);
     handles.set(
@@ -55,6 +75,7 @@ export function mount(container, context) {
       context.controls.mount(slot, {
         type: 'button',
         label,
+        ...buttonIcon(action),
         variant: action === 'authorize' ? 'default' : 'outline',
         onPress: () => void perform(action),
       }),
@@ -95,6 +116,7 @@ export function mount(container, context) {
       handle.update({
         type: 'button',
         label: labels[action],
+        ...buttonIcon(action),
         variant: action === 'authorize' ? 'default' : 'outline',
         disabled: pending || (action === 'refresh' && Boolean(view?.operation)),
         onPress: () => void perform(action),
@@ -181,6 +203,7 @@ export function mount(container, context) {
     unsubscribe();
     window.removeEventListener('focus', onFocus);
     for (const handle of handles.values()) handle.destroy();
+    for (const handle of iconHandles) handle.destroy();
     container.replaceChildren();
   }
   context.signal.addEventListener('abort', cleanup, { once: true });

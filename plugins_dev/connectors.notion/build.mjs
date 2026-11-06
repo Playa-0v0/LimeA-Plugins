@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { mkdir, copyFile } from 'node:fs/promises';
+import { mkdir, copyFile, cp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 process.chdir(fileURLToPath(new URL('.', import.meta.url)));
 await mkdir('dist', { recursive: true });
@@ -22,4 +22,5 @@ await build({
 });
 for (const name of ['limea.plugin.json', 'LICENSE', 'README.md', 'THIRD-PARTY-NOTICES.txt'])
   await copyFile(name, 'dist/' + name);
+await cp('assets', 'dist/assets', { recursive: true });
 console.log('构建完成：导入 plugins_dev/connectors.notion/dist');

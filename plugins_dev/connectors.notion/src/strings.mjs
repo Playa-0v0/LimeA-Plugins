@@ -47,8 +47,8 @@ export const zh = {
   blocksTitle: '读取页面内容',
   blocksDetail: '逐页读取文本和嵌套内容块，不下载附件。',
   usageTitle: '开始使用',
-  usage:
-    '连接账号并在下方允许读取后，向 LimeA 发送一条新消息。例如：“帮我在 Notion 找到项目笔记，并总结下一步要做的事。”',
+  usage: '连接账号并在下方允许读取后，向 LimeA 发送一条新消息。你可以这样问：',
+  usageExample: '帮我在 Notion 找到项目笔记，并总结下一步要做的事。',
   readOnly: '只读 · 仅限已共享页面',
   ready: '已连接',
 };
@@ -108,8 +108,8 @@ export const en = {
   blocksTitle: 'Read page content',
   blocksDetail: 'Read text blocks page by page, including nested blocks. No attachment downloads.',
   usageTitle: 'Start a conversation',
-  usage:
-    'After connecting and allowing access below, send a new message to LimeA. For example: “Find my project notes in Notion and summarize the next steps.”',
+  usage: 'Connect your account, allow access below, then send a new message to LimeA. Try asking:',
+  usageExample: 'Find my project notes in Notion and summarize the next steps.',
   readOnly: 'Read only · shared pages',
   ready: 'Connected',
 };

@@ -1,3 +1,13 @@
+Brand artwork
+
+assets/icon.png: Notion official website app icon, retrieved 2026-11-06.
+Source: https://www.notion.com/front-static/logo-ios.png
+Notion name and logo are trademarks of Notion Labs, Inc.
+Brand guidelines: https://notion.notion.site/Notion-Brand-Guidelines-db8fda2d1f0048bba1f4e547dfc48830
+assets/banner.png: illustration supplied by the project owner.
+These image assets and trademarks are not covered by this plugin's MIT license.
+This is an independently developed integration, not an official Notion product.
+
 @notionhq/client 5.31.0 — MIT
 
 Copyright 2021 Notion Labs, Inc.
