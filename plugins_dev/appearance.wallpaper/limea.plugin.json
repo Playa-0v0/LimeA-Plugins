@@ -1,0 +1,12 @@
+{
+  "id": "appearance.wallpaper",
+  "name": "壁纸与玻璃外观",
+  "version": "0.1.4",
+  "apiVersion": 9,
+  "hostVersion": ">=0.1.0 <1",
+  "entry": "backend.mjs",
+  "background": "background.mjs",
+  "settings": "settings.mjs",
+  "permissions": ["fs:steam-readonly", "fs:selected-media", "fs:plugin-data", "net:loopback"],
+  "resources": ["assets/icon.png"]
+}

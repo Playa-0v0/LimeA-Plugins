@@ -1,0 +1,15 @@
+dsh-wallpaper-engine, revision 17f659a, copyright (c) 2026 elysia395, MIT.
+https://github.com/elysia395/dsh-wallpaper-engine
+vendor/steam-discovery.mjs and vendor/wallpaper-scan.mjs are unmodified upstream modules.
+The player adapter follows the upstream lib/webwallgl/renderer.js integration.
+Preview cards and project cover lookup follow src/picker-modal.js,
+lib/wallpaper-scan.js and the preview candidates from lib/upload-store.js.
+Thumbnail resizing reuses LimeA's existing Sharp service; no Sharp binary
+is bundled with this plugin.
+Full license: LICENSE-dsh (vendor/LICENSE-dsh in source).
+
+WebWallGL 3.0.1, oneincase, MIT. https://github.com/oneincase/webwallgl
+serve-handler 6.1.7, Vercel, MIT. https://github.com/vercel/serve-handler
+Bundled dependency licenses are included as LICENSE-*.txt.
+mediabunny is distributed under MPL-2.0; its unmodified source
+are included under sources/mediabunny in the distribution.
