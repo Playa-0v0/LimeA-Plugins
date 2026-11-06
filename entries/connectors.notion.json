@@ -1,0 +1,8 @@
+{
+  "author": "Playa",
+  "category": "tools",
+  "description": "连接自己的 Notion 工作区，搜索已共享页面并分页读取页面属性和内容块。凭据由宿主管理，插件只获得当前工具执行期间的只读能力。需要支持插件接口版本 10 的新版 LimeA，打开插件独立页面连接账号并单独允许读取。",
+  "license": "MIT",
+  "repository": "plugins_dev/connectors.notion",
+  "documentation": "plugins_dev/connectors.notion/README.md"
+}

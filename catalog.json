@@ -23,6 +23,18 @@
       }
     },
     {
+      "id": "connectors.notion",
+      "name": "Notion 只读",
+      "description": "连接自己的 Notion 工作区，搜索已共享页面并分页读取页面属性和内容块。凭据由宿主管理，插件只获得当前工具执行期间的只读能力。需要支持插件接口版本 10 的新版 LimeA，打开插件独立页面连接账号并单独允许读取。",
+      "author": "Playa",
+      "version": "1.1.0",
+      "hostVersion": ">=0.1.0",
+      "category": "tools",
+      "permissions": [],
+      "archive": "plugins/connectors.notion/1.1.0.zip",
+      "sha256": "5119cd346183aa326242b19129315a837b0b6dda9e9d1404fe570da3f17fabee"
+    },
+    {
       "id": "games.draw_guess",
       "name": "你画我猜",
       "description": "和当前角色轮流画画、猜词。后台独立出题，画家三选一，双方获得字数提示；用户边画角色边猜，角色也能看着实际画面补画。支持闭合区域填色、画笔与操作音效、撤销重做、暂停恢复和聊天内轮次回顾，不设积分。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件接口版本 8 的 LimeA 和支持图片输入的模型。",
