@@ -1,0 +1,87 @@
+:host {
+  color: var(--foreground);
+  font-family: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+h2 {
+  font-size: var(--ui-text-base);
+  font-weight: 600;
+  margin: 0 0 var(--ui-space-4);
+}
+h3 {
+  font-size: var(--ui-text-sm);
+  font-weight: 600;
+  margin: 0 0 var(--ui-space-1);
+}
+p {
+  margin: 0;
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.account {
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-lg);
+  padding: var(--ui-space-5);
+}
+.account-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-4);
+}
+.account-summary {
+  flex: 1;
+  min-width: min(100%, 14rem);
+}
+.account-name {
+  display: block;
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.account-hint {
+  margin-top: var(--ui-space-1);
+  color: var(--muted-foreground);
+}
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2);
+}
+.account-status {
+  margin-top: var(--ui-space-4);
+  color: var(--muted-foreground);
+}
+.account-error {
+  margin-top: var(--ui-space-4);
+}
+.account-error p {
+  color: var(--destructive);
+  margin-bottom: var(--ui-space-2);
+}
+.features,
+.usage {
+  margin-top: var(--ui-space-7);
+}
+.features ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+.features li {
+  padding: var(--ui-space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+.features p {
+  color: var(--muted-foreground);
+}
+.usage p {
+  text-wrap: pretty;
+}

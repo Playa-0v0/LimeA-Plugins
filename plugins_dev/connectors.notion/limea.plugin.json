@@ -1,0 +1,88 @@
+{
+  "id": "connectors.notion",
+  "name": "Notion 只读",
+  "version": "1.1.0",
+  "apiVersion": 10,
+  "hostVersion": ">=0.1.0",
+  "entry": "backend.mjs",
+  "connections": [
+    {
+      "provider": "notion",
+      "permissionSet": "notion-read"
+    }
+  ],
+  "tools": [
+    {
+      "id": "search",
+      "name": "搜索 Notion 页面",
+      "description": "搜索用户授权给 LimeA 的 Notion 页面标题。不会搜索页面正文。结果只覆盖已共享页面；空结果不代表工作区无内容。nextCursor 可用于下一页。 返回 connection-result-too-large 时，使用更小的 pageSize（最小 1）和同一 cursor 重试。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          }
+        },
+        "required": []
+      },
+      "modes": ["work", "chat", "learn", "group"]
+    },
+    {
+      "id": "page",
+      "name": "读取 Notion 页面信息",
+      "description": "读取一个已授权页面的标题与受支持属性。pageId 使用搜索结果里的页面 ID；正文用 children 读取。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageId": {
+            "type": "string"
+          }
+        },
+        "required": ["pageId"]
+      },
+      "modes": ["work", "chat", "learn", "group"]
+    },
+    {
+      "id": "children",
+      "name": "读取 Notion 内容块",
+      "description": "分页读取页面或块的直接子块（每页最多 50 个），以文本形式返回。hasChildren 的块需要用其 id 再调用本工具；不下载附件、不自动访问外链。nextCursor 可用于下一页。 返回 connection-result-too-large 时，使用更小的 pageSize（最小 1）和同一 cursor 重试。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "blockId": {
+            "type": "string"
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": ["blockId"]
+      },
+      "modes": ["work", "chat", "learn", "group"]
+    }
+  ],
+  "page": {
+    "entry": "page.mjs",
+    "description": "连接你的 Notion 工作区，让 LimeA 搜索和阅读你共享的页面。",
+    "author": "Playa"
+  }
+}
