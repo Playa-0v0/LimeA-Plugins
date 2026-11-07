@@ -60,18 +60,18 @@
     {
       "id": "games.gomoku",
       "name": "五子棋",
-      "description": "和当前角色一起下五子棋。可选模型落子或引擎辅助，普通、困难两档分析，提供三个候选点供角色决定。支持落子音效、胜负计分、续局、中断恢复及聊天内历史棋谱查询。可从插件管理卡片直接打开设置；每轮明确双方执子与落点。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。需要支持插件接口版本 11 的 LimeA。",
+      "description": "和当前角色一起下五子棋。可选模型落子或引擎辅助，普通、困难两档分析，提供三个候选点供角色决定。支持落子音效、胜负计分、续局、中断恢复及聊天内历史棋谱查询。可在插件详情页调整对局设置；每轮明确双方执子与落点。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。需要支持插件接口版本 11 的 LimeA。",
       "author": "Playa",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data"
       ],
-      "archive": "plugins/games.gomoku/0.3.0.zip",
-      "sha256": "af4017fba07acffd832cf2562be88a5e5e960a5d2024050abdb52cf318934506",
+      "archive": "plugins/games.gomoku/0.3.1.zip",
+      "sha256": "5563c1cb10779524e3be34a6dc8d1eddd433ebb943d94f85172c2c4efa42a772",
       "icon": {
-        "path": "icons/games.gomoku/0.3.0.png",
+        "path": "icons/games.gomoku/0.3.1.png",
         "sha256": "3173cb4b1075293e6e9f95d7259a059454b0c74fc6098b3ca8c090bf1f8b00d9"
       }
     },
