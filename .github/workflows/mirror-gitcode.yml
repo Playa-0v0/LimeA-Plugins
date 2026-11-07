@@ -1,0 +1,38 @@
+name: Mirror to GitCode
+
+# 需要在仓库 Settings → Secrets and variables → Actions 中配置：
+#   GITCODE_USERNAME：GitCode 用户名（不是显示昵称）
+#   GITCODE_TOKEN：具有 LimeA-Plugins 仓库写权限的个人访问令牌
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-gitcode
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Push to GitCode
+        env:
+          GITCODE_USERNAME: ${{ secrets.GITCODE_USERNAME }}
+          GITCODE_TOKEN: ${{ secrets.GITCODE_TOKEN }}
+        run: |
+          if [ -z "$GITCODE_USERNAME" ] || [ -z "$GITCODE_TOKEN" ]; then
+            echo "::error::缺少 GITCODE_USERNAME 或 GITCODE_TOKEN 仓库密钥"
+            exit 1
+          fi
+          git config --local credential.helper '!f() { echo username=$GITCODE_USERNAME; echo password=$GITCODE_TOKEN; }; f'
+          git remote add gitcode https://gitcode.com/Playa-LimeA/LimeA-Plugins.git
+          git push gitcode HEAD:main
