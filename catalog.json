@@ -41,19 +41,19 @@
     {
       "id": "games.draw_guess",
       "name": "你画我猜",
-      "description": "和当前角色轮流画画、猜词。后台独立出题，画家三选一，双方获得字数提示；用户边画角色边猜，角色也能看着实际画面补画。支持闭合区域填色、画笔与操作音效、撤销重做、暂停恢复和聊天内轮次回顾，不设积分。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。需要支持插件接口版本 8 的 LimeA 和支持图片输入的模型。",
+      "description": "和当前角色轮流画画、猜词。后台独立出题，画家三选一，双方获得字数提示；用户边画角色边猜，角色也能看着实际画面补画。支持闭合区域填色、画笔与操作音效、撤销重做、暂停恢复和聊天内轮次回顾，不设积分。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。需要支持插件接口版本 11 的 LimeA 和支持图片输入的模型。",
       "author": "Playa",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data",
         "model:private-task"
       ],
-      "archive": "plugins/games.draw_guess/0.1.2.zip",
-      "sha256": "b1a11d2d0f97fd3028d00e70a5885a2e6462708b080ef496ab20b6567ec307d6",
+      "archive": "plugins/games.draw_guess/0.2.0.zip",
+      "sha256": "1af27c82397c6737aa3c70a7ab7cee33a10486751b08c57ed8a2e7ab023581d3",
       "icon": {
-        "path": "icons/games.draw_guess/0.1.2.png",
+        "path": "icons/games.draw_guess/0.2.0.png",
         "sha256": "4f15488058a2cb37f8c7c304f4f5a80c6e920100ed0d2d6d66179a02bc95473e"
       }
     },
