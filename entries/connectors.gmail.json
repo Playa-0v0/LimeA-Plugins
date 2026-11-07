@@ -1,0 +1,10 @@
+{
+  "author": "Playa",
+  "category": "communication",
+  "description": "连接 Google 邮箱，在 LimeA 中搜索和阅读邮件、创建草稿、发送及整理邮件。",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "repository": "plugins_dev/connectors.gmail",
+  "documentation": "plugins_dev/connectors.gmail/README.md",
+  "tier": "official"
+}
