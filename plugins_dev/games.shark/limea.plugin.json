@@ -1,8 +1,8 @@
 {
   "id": "games.shark",
   "name": "鲨鱼咬牙",
-  "version": "0.3.5",
-  "apiVersion": 6,
+  "version": "0.4.0",
+  "apiVersion": 11,
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
   "permissions": [
@@ -23,6 +23,12 @@
   "resources": [
     "assets/game-shark.glb"
   ],
+  "page": {
+    "entry": "page.mjs",
+    "description": "和当前角色一起玩鲨鱼咬牙。每局随机先手，双方轮流按下一颗牙齿，按到唯一的坏牙就会合嘴；单人模式也可以自己玩。模型、动画、音效和对局记录都随聊天打开，不设时间压力。",
+    "author": "Playa",
+    "illustration": "assets/banner.webp"
+  },
   "tools": [
     {
       "id": "start",

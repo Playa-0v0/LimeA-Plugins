@@ -7,6 +7,7 @@
 | `assets/game-shark.glb`                   | 游戏运行所用的三维模型 |
 | `source-art/game-shark.blend`（源码目录） | 模型的可编辑源文件     |
 | `assets/icon.png`                         | 插件入口与市场展示图标 |
+| `assets/banner.webp`                      | 详情页横幅             |
 
 这些素材可随鲨鱼咬牙插件构建、分发和运行。当前未授予脱离本插件的独立复用许可；需要用于其他项目时，应另行取得素材权利人的授权。公开源码和提供下载不代表素材采用 MIT 许可。
 

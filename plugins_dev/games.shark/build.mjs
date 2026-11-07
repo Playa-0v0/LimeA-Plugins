@@ -22,10 +22,20 @@ await build({
   minify: true,
   legalComments: 'eof',
 });
+await build({
+  entryPoints: ['src/page.mjs'],
+  outfile: 'dist/page.mjs',
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  target: 'chrome140',
+  loader: { '.css': 'text' },
+});
 await cp('limea.plugin.json', 'dist/limea.plugin.json');
 await cp('assets/game-shark.glb', 'dist/assets/game-shark.glb');
 await cp('assets/icon.png', 'dist/assets/icon.png');
+await cp('assets/banner.webp', 'dist/assets/banner.webp');
 await cp('LICENSE', 'dist/LICENSE');
 await cp('ASSETS.md', 'dist/ASSETS.md');
 await cp('node_modules/three/LICENSE', 'dist/THREE-LICENSE.txt');
-console.log('构建完成：在 LimeA 设置 → 插件中导入 dist 目录');
+console.log('构建完成：在支持接口 11 的 LimeA 中导入 dist 目录');
