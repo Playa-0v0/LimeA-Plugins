@@ -1,7 +1,7 @@
 {
   "id": "games.shark",
   "name": "鲨鱼咬牙",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "apiVersion": 11,
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
