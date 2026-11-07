@@ -29,6 +29,31 @@ p {
   line-height: var(--ui-leading-prose);
   overflow-wrap: anywhere;
 }
+.testing-notice {
+  margin-bottom: var(--ui-space-6);
+  padding: var(--ui-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-md);
+  background: var(--muted);
+}
+.testing-notice h2 {
+  padding: 0;
+  border: 0;
+  font-size: var(--ui-text-sm);
+}
+.testing-notice p {
+  margin-top: var(--ui-space-2);
+  color: var(--muted-foreground);
+}
+.section-icon,
+.feature-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--muted-foreground);
+}
+.feature-icon {
+  margin-top: 0.125rem;
+}
 .account-row {
   display: flex;
   align-items: center;

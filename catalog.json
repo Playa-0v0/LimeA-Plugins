@@ -25,18 +25,18 @@
     },
     {
       "id": "connectors.gmail",
-      "name": "Gmail",
+      "name": "Gmail（待谷歌认证）",
       "description": "连接 Google 邮箱，在 LimeA 中搜索和阅读邮件、创建草稿、发送及整理邮件。",
       "author": "Playa",
-      "version": "1.0.0",
+      "version": "1.0.3",
       "hostVersion": ">=0.1.0",
       "category": "communication",
       "tier": "official",
       "permissions": [],
-      "archive": "plugins/connectors.gmail/1.0.0.zip",
-      "sha256": "a2f2bc8779e0fa2572b88bdc36584c360c0223e38ab4bf3765d6ff175f89f1b9",
+      "archive": "plugins/connectors.gmail/1.0.3.zip",
+      "sha256": "621fca4fc0bec526935f0d4739bbf98702b4348909eb3ae201be492d017dde30",
       "icon": {
-        "path": "icons/connectors.gmail/1.0.0.png",
+        "path": "icons/connectors.gmail/1.0.3.png",
         "sha256": "a5cf5c35082aa506518402699c5c5bbc2416742904c60a8cdd81731a2b080bad"
       }
     },

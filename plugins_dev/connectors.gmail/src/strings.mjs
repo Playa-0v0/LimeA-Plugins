@@ -1,4 +1,7 @@
 export const zh = {
+  testingTitle: '现阶段仅限测试邮箱',
+  testingDetail:
+    '当前仅支持已加入 LimeA 项目测试名单的 Google 邮箱连接。若授权时提示“访问被阻止”，请确认登录的是已加入测试名单的邮箱。',
   accountTitle: 'Google 账号',
   featuresTitle: '邮箱功能',
   features: [
@@ -42,6 +45,9 @@ export const zh = {
   },
 };
 export const en = {
+  testingTitle: 'Currently available to test accounts only',
+  testingDetail:
+    'Only Google accounts added to the LimeA project’s test user list can connect. If Google blocks access during authorization, check that you are signing in with an approved test account.',
   accountTitle: 'Google account',
   featuresTitle: 'Mail tools',
   features: [

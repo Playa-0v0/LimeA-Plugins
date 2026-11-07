@@ -8,26 +8,34 @@ export function mount(container, context) {
   style.textContent = css;
   const root = document.createElement('div');
   root.className = 'gmail-page';
-  root.innerHTML = `<section class="account" aria-labelledby="account-title">
+  root.innerHTML = `<section class="testing-notice" aria-labelledby="testing-title">
+    <h2 id="testing-title"></h2><p></p></section>
+    <section class="account" aria-labelledby="account-title">
     <h2 id="account-title"></h2>
     <div class="account-row"><img class="account-icon" alt=""><div class="account-summary"><strong class="account-name"></strong><p class="account-hint"></p></div>
       <div class="account-actions"><span data-action="authorize"></span><span data-action="resume"></span><span data-action="cancel"></span><span data-action="refresh"></span><span data-action="disconnect"></span></div></div>
     <p role="status" class="account-status"></p><div role="alert" class="account-error"><p></p><span data-action="retry"></span></div></section>
-    <section class="features"><h2></h2><ul></ul></section>`;
+    <section class="features"><h2><span class="section-icon" data-icon="blocks"></span><span class="heading-label"></span></h2><ul></ul></section>`;
   container.replaceChildren(style, root);
   const query = (selector) => root.querySelector(selector);
+  query('#testing-title').textContent = t.testingTitle;
+  query('.testing-notice p').textContent = t.testingDetail;
   query('#account-title').textContent = t.accountTitle;
   query('.account-icon').src = new URL('assets/icon.png', context.resourceBase).href;
-  query('.features h2').textContent = t.featuresTitle;
-  for (const [title, detail] of t.features) {
+  query('.features h2 .heading-label').textContent = t.featuresTitle;
+  const featureIcons = ['search', 'file-text', 'list-tree'];
+  for (const [index, [title, detail]] of t.features.entries()) {
     const row = document.createElement('li'),
+      icon = document.createElement('span'),
       section = document.createElement('div'),
       h = document.createElement('h3'),
       p = document.createElement('p');
     h.textContent = title;
     p.textContent = detail;
+    icon.className = 'feature-icon';
+    icon.dataset.icon = featureIcons[index];
     section.append(h, p);
-    row.append(section);
+    row.append(icon, section);
     query('.features ul').append(row);
   }
   let view,
@@ -37,6 +45,13 @@ export function mount(container, context) {
     disposed = false,
     error = '';
   const handles = new Map();
+  const iconHandles = [];
+  for (const slot of root.querySelectorAll('[data-icon]')) {
+    const name = slot.dataset.icon;
+    if (context.controls.icons?.includes(name)) {
+      iconHandles.push(context.controls.mount(slot, { type: 'icon', name, size: 18 }));
+    } else slot.hidden = true;
+  }
   const alive = () => !disposed && !context.signal.aborted;
   const labels = {
     authorize: t.connect,
@@ -189,6 +204,7 @@ export function mount(container, context) {
     unsubscribe();
     window.removeEventListener('focus', onFocus);
     for (const handle of handles.values()) handle.destroy();
+    for (const handle of iconHandles) handle.destroy();
     container.replaceChildren();
   }
   context.signal.addEventListener('abort', cleanup, { once: true });
