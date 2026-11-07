@@ -1,4 +1,5 @@
 import css from './page.css';
+import { mount as mountSettings } from './settings.mjs';
 import { zh, en } from './page-strings.mjs';
 
 export function mount(container, context) {
@@ -15,6 +16,10 @@ export function mount(container, context) {
     <section class="features" aria-labelledby="gomoku-features-title">
       <h2 id="gomoku-features-title"><span class="section-icon" data-icon="blocks"></span><span class="heading-label"></span><span class="section-count"></span></h2>
       <ul></ul>
+    </section>
+    <section class="settings" aria-labelledby="gomoku-settings-title">
+      <h2 id="gomoku-settings-title"><span class="section-icon" data-icon="link"></span><span class="heading-label"></span></h2>
+      <div class="settings-body"></div>
     </section>
     <section class="usage" aria-labelledby="gomoku-usage-title">
       <h2 id="gomoku-usage-title"><span class="section-icon" data-icon="message-square"></span><span class="heading-label"></span></h2>
@@ -45,7 +50,6 @@ export function mount(container, context) {
     { icon: 'refresh-cw', title: t.turnsTitle, detail: t.turnsDetail },
     { icon: 'circle-check', title: t.winTitle, detail: t.winDetail },
     { icon: 'list-tree', title: t.engineTitle, detail: t.engineDetail },
-    { icon: 'link', title: t.settingsTitle, detail: t.settingsDetail },
     { icon: 'circle-dashed', title: t.pauseTitle, detail: t.pauseDetail },
     { icon: 'file-text', title: t.historyTitle, detail: t.historyDetail },
   ];
@@ -66,6 +70,8 @@ export function mount(container, context) {
   }
   query('.features h2 .heading-label').textContent = t.featuresTitle;
   query('.features h2 .section-count').textContent = String(features.length);
+  query('.settings h2 .heading-label').textContent = t.pageSettingsTitle;
+  const settingsCleanup = mountSettings(query('.settings-body'), context);
   query('.usage h2 .heading-label').textContent = t.usageTitle;
   query('.usage p').textContent = t.usage;
   query('.usage blockquote').textContent = t.usageExample;
@@ -77,6 +83,7 @@ export function mount(container, context) {
     else slot.hidden = true;
   }
   function cleanup() {
+    settingsCleanup();
     for (const handle of handles) handle.destroy();
     container.replaceChildren();
   }

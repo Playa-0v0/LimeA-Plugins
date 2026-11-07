@@ -1,8 +1,9 @@
 import { build } from 'esbuild';
 import sharp from 'sharp';
-import { cp, mkdir } from 'node:fs/promises';
+import { cp, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 process.chdir(fileURLToPath(new URL('.', import.meta.url)));
+await rm('dist', { recursive: true, force: true });
 await mkdir('dist/assets', { recursive: true });
 await build({
   entryPoints: ['src/engine-worker.mjs'],
@@ -23,16 +24,6 @@ await build({
 await build({
   entryPoints: ['src/panel.mjs'],
   outfile: 'dist/panel.mjs',
-  bundle: true,
-  format: 'esm',
-  platform: 'browser',
-  target: 'chrome140',
-  minify: true,
-  loader: { '.css': 'text' },
-});
-await build({
-  entryPoints: ['src/settings.mjs'],
-  outfile: 'dist/settings.mjs',
   bundle: true,
   format: 'esm',
   platform: 'browser',

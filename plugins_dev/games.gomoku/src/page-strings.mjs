@@ -20,9 +20,7 @@ export const zh = {
   engineTitle: '模型落子与引擎辅助',
   engineDetail:
     '默认只向模型提供棋盘；可切换本地引擎，计算最多三个候选落点和评估分，模型仍可选择其他合法空点。引擎超时会使用已完成的较浅分析。',
-  settingsTitle: '对局设置',
-  settingsDetail:
-    '可在插件卡片直接打开设置，选择模型落子或引擎辅助、普通或困难；设置保存在插件数据库，从下一局开始生效，暂停棋局沿用原设置。',
+  pageSettingsTitle: '对局设置',
   pauseTitle: '暂停与恢复',
   pauseDetail:
     '停止运行、模型失败或重启会保留棋盘，点击「继续对局」恢复；同步失败时禁止操作，不自动补下棋子。',
@@ -61,9 +59,7 @@ export const en = {
   engineTitle: 'Model or engine assistance',
   engineDetail:
     'By default the model only receives the board. A local engine can compute up to three candidate moves and scores, while the model may still choose another legal point. A timeout falls back to the shallower completed analysis.',
-  settingsTitle: 'Game settings',
-  settingsDetail:
-    'Open settings from the plugin card to choose model moves or engine assistance, and normal or hard difficulty. Settings are saved in the plugin database and apply from the next round; paused games keep their original settings.',
+  pageSettingsTitle: 'Game settings',
   pauseTitle: 'Pause and resume',
   pauseDetail:
     'Stopping the run, model failure or restart keeps the board; continue to resume. Failed synchronization blocks moves and never places stones automatically.',
