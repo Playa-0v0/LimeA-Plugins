@@ -43,17 +43,17 @@
       "name": "你画我猜",
       "description": "和当前角色轮流画画、猜词。后台独立出题，画家三选一，双方获得字数提示；用户边画角色边猜，角色也能看着实际画面补画。支持闭合区域填色、画笔与操作音效、撤销重做、暂停恢复和聊天内轮次回顾，不设积分。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。需要支持插件接口版本 11 的 LimeA 和支持图片输入的模型。",
       "author": "Playa",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data",
         "model:private-task"
       ],
-      "archive": "plugins/games.draw_guess/0.2.0.zip",
-      "sha256": "1af27c82397c6737aa3c70a7ab7cee33a10486751b08c57ed8a2e7ab023581d3",
+      "archive": "plugins/games.draw_guess/0.2.1.zip",
+      "sha256": "c477bcb2963f62df6e10e1404b60b7523596890ca317b80dc553f8035621be28",
       "icon": {
-        "path": "icons/games.draw_guess/0.2.0.png",
+        "path": "icons/games.draw_guess/0.2.1.png",
         "sha256": "4f15488058a2cb37f8c7c304f4f5a80c6e920100ed0d2d6d66179a02bc95473e"
       }
     },
@@ -78,18 +78,18 @@
     {
       "id": "games.shark",
       "name": "鲨鱼咬牙",
-      "description": "按下鲨鱼的牙齿，看看谁会碰到那颗危险牙齿。支持单人挑战和角色陪玩，随机先手、轮流按牙、累计计分，还可以再来一局。每段聊天独立保存进度，中断后可继续。安装并启用后，在 Chat 模式右侧的“小游戏”中打开。角色陪玩使用当前会话模型。需要支持插件 API 6 的 LimeA。",
+      "description": "按下鲨鱼的牙齿，看看谁会碰到那颗危险牙齿。支持单人挑战和角色陪玩，随机先手、轮流按牙、累计计分，还可以再来一局。每段聊天独立保存进度，中断后可继续。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。角色陪玩使用当前会话模型。需要支持插件接口版本 11 的 LimeA。",
       "author": "Playa",
-      "version": "0.3.5",
+      "version": "0.4.0",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
       "permissions": [
         "fs:plugin-data"
       ],
-      "archive": "plugins/games.shark/0.3.5.zip",
-      "sha256": "f4074bab6f24f7c14c3014d2f09edc19daf0bde32196ada96061c66c698cd10c",
+      "archive": "plugins/games.shark/0.4.0.zip",
+      "sha256": "f7778eb27e76929a07f20447ad119b2253be841133e9423a1c5940fb8a100dfd",
       "icon": {
-        "path": "icons/games.shark/0.3.5.png",
+        "path": "icons/games.shark/0.4.0.png",
         "sha256": "fef221a79f11861dc58246d12316cffb5aa0c9140f328e20485e059f6286453b"
       }
     }
