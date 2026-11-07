@@ -1,7 +1,7 @@
 {
   "id": "games.draw_guess",
   "name": "你画我猜",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "apiVersion": 11,
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
@@ -25,7 +25,7 @@
   ],
   "page": {
     "entry": "page.mjs",
-    "description": "和角色一起玩你画我猜：轮流作画、边画边猜，结束后还能复盘最近的轮次。",
+    "description": "和当前角色一起玩你画我猜。你们轮流当画家，每轮从三个词里选一个画出来，另一方根据画面和字数提示猜词；你可以边画边等角色猜，角色也会观察自己画出的画面继续补画。画板、音效和回合记录都随聊天打开，不设积分。",
     "author": "Playa",
     "illustration": "assets/banner.webp"
   },

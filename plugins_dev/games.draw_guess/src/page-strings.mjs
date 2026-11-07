@@ -1,23 +1,32 @@
 export const zh = {
   introLabel: '你画我猜能怎么玩',
-  introTurnTitle: '轮流作画：',
-  introTurnDetail: '你和角色轮流当画家，每轮三选一，不提供自命题。',
+  introTurnTitle: '轮流当画家：',
+  introTurnDetail: '你和角色交替出题，每轮从三个词里选一个画出来。',
   introGuessTitle: '边画边猜：',
   introGuessDetail: '角色会观察你实际画出的画面猜测，你也可以随时输入答案。',
-  introCasualTitle: '轻量陪玩：',
-  introCasualDetail: '不设积分，抽象、笨拙的画法也算数，重点是陪玩和表达。',
-  introReplayTitle: '结束复盘：',
-  introReplayDetail: '猜中或揭晓后可再来一轮，也能在聊天里回顾最近几轮的答案与结果。',
-  featuresTitle: '玩法与能力',
+  introCasualTitle: '共享画板：',
+  introCasualDetail: '画笔、形状、橡皮、填色和撤销重做都在聊天右侧，不设积分。',
+  introReplayTitle: '结束能复盘：',
+  introReplayDetail: '猜中或揭晓后可再来一轮，也能回看最近几轮的答案与结果。',
+  featuresTitle: '插件功能',
+  startTitle: '开局与选词',
+  startDetail:
+    '每轮画家从三个词里选一个，展示过的词退出本局；不提供自命题，猜词方看不到题目和候选。',
+  turnsTitle: '轮流作画',
+  turnsDetail:
+    '双方交替当画家，默认交换先手；每轮可选 3、5、10 分钟，等待选词和准备首批绘画不计时。',
   boardTitle: '共享画板',
   boardDetail:
-    '画笔、形状、橡皮、填色和撤销重做随聊天打开；画板获得焦点时可用 Ctrl+Z 撤销、Ctrl+Y 重做。',
-  secretTitle: '私密出题',
-  secretDetail: '题目只对画家可见，猜测方只会得到字数提示，看不到题目和候选词。',
+    '画笔、椭圆、矩形、橡皮、颜料桶、颜色和 1–24 px 粗细；支持撤销重做、Ctrl+Z / Ctrl+Y，以及绘画、擦除、填色音效和静音。',
   agentTitle: '角色作画',
-  agentDetail: '角色会观察自己实际画出的画面，继续补画或修改；等待时你也可以继续画。',
-  historyTitle: '回合记录',
-  historyDetail: '结束后的公开结果会交回聊天，角色也能用记录工具复盘最近已揭晓的轮次。',
+  agentDetail:
+    '角色秘密选词后分批画图，并观察自己实际画出的画面继续补画或修改；它思考时你可以继续画。',
+  guessTitle: '私密猜词',
+  guessDetail:
+    '猜测方只会得到字数提示，看不到答案、候选词或角色草稿；答案按完整词或生成时的同义词匹配。',
+  historyTitle: '结果与复盘',
+  historyDetail:
+    '猜中、到时或点击揭晓后立即显示答案和「再来一轮 / 下次再玩」；最近已揭晓的轮次可在聊天里回看。',
   usageTitle: '开始使用',
   usage: '从聊天右侧打开「小游戏」，或直接让角色陪你玩。你可以这样说：',
   usageExample: '陪我玩一局你画我猜吧，你先画。',
@@ -31,24 +40,31 @@ export const en = {
   introGuessTitle: 'Draw and guess:',
   introGuessDetail:
     'The character looks at the actual drawing and guesses; you can enter an answer at any time.',
-  introCasualTitle: 'Casual play:',
-  introCasualDetail: 'There is no scoring; abstract or rough drawings are fine. The point is playing together.',
-  introReplayTitle: 'Review the round:',
+  introCasualTitle: 'Shared canvas:',
+  introCasualDetail:
+    'Brush, shapes, eraser, fill, undo and redo open beside the chat; there is no scoring.',
+  introReplayTitle: 'Review afterwards:',
   introReplayDetail:
-    'After a correct guess or reveal, play again, or review recent answers and results in chat.',
-  featuresTitle: 'How to play',
+    'After a correct guess or reveal, play again, or review recent answers and results.',
+  featuresTitle: 'Plugin features',
+  startTitle: 'Rounds and words',
+  startDetail:
+    'Each round the artist picks one of three words; used words leave the pool, and the guesser never sees the word or candidates.',
+  turnsTitle: 'Alternating turns',
+  turnsDetail:
+    'You and the character alternate as artist, switching first player by default. Pick 3, 5 or 10 minutes per round; word selection and first-batch drawing do not count down.',
   boardTitle: 'Shared canvas',
   boardDetail:
-    'Brush, shapes, eraser, fill, undo and redo open beside the chat. Use Ctrl+Z to undo and Ctrl+Y to redo when the canvas has focus.',
-  secretTitle: 'Secret words',
-  secretDetail:
-    'Only the artist sees the word; the guesser receives a character count, never the word or candidates.',
+    'Brush, ellipse, rectangle, eraser, paint bucket, colors and 1–24 px width; undo/redo, Ctrl+Z / Ctrl+Y, and drawing, erasing and fill sounds with mute controls.',
   agentTitle: 'The character draws',
   agentDetail:
-    'The character watches its own drawing and keeps adding or changing it; you can keep drawing while it thinks.',
-  historyTitle: 'Round history',
+    'The character secretly picks a word, draws in batches, watches its own drawing and keeps adding or changing it; you can keep drawing while it thinks.',
+  guessTitle: 'Private guessing',
+  guessDetail:
+    'The guesser only receives a character count, never the word, candidates or the character’s draft. Answers match the exact word or its generated synonyms.',
+  historyTitle: 'Results and review',
   historyDetail:
-    'Public results return to the chat after a round, and the character can review recent revealed rounds.',
+    'After a correct guess, timeout or reveal, see the answer and choose play again or stop; recent revealed rounds can be reviewed in chat.',
   usageTitle: 'Start playing',
   usage: 'Open Mini games from the right side of the chat, or ask the character to play. Try saying:',
   usageExample: "Let's play Draw & Guess. You draw first.",
