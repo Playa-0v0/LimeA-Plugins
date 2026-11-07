@@ -1,0 +1,124 @@
+:host {
+  color: var(--foreground);
+  font-family: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  font-size: var(--ui-text-base);
+  font-weight: 600;
+  margin: 0;
+  padding-bottom: var(--ui-space-3);
+  border-bottom: 1px solid var(--border);
+}
+h3 {
+  font-size: var(--ui-text-sm);
+  font-weight: 600;
+  margin: 0 0 var(--ui-space-1);
+}
+p {
+  margin: 0;
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.intro {
+  margin-bottom: var(--ui-space-8);
+}
+.intro ul {
+  display: grid;
+  gap: var(--ui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.intro li {
+  position: relative;
+  padding-left: var(--ui-space-4);
+  color: var(--muted-foreground);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.intro li::before {
+  content: '';
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.intro strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.section-icon,
+.feature-icon,
+.section-count {
+  color: var(--muted-foreground);
+}
+.section-icon,
+.feature-icon {
+  display: inline-flex;
+  flex: none;
+}
+.section-count {
+  font-size: var(--ui-text-sm);
+  font-weight: 400;
+}
+.features,
+.settings,
+.usage {
+  margin-top: var(--ui-space-8);
+}
+.features ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.features li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-5) 0 0;
+}
+.feature-icon {
+  width: 2.25rem;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+}
+.features p {
+  color: var(--muted-foreground);
+}
+.settings-description {
+  margin-top: var(--ui-space-4);
+  color: var(--muted-foreground);
+}
+.settings-body {
+  margin-top: var(--ui-space-4);
+}
+.settings-loading {
+  color: var(--muted-foreground);
+}
+.usage p {
+  margin-top: var(--ui-space-4);
+  text-wrap: pretty;
+}
+.usage blockquote {
+  margin: var(--ui-space-3) 0 0;
+  padding: var(--ui-space-2) 0 var(--ui-space-2) var(--ui-space-4);
+  border-left: 2px solid var(--border);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  text-wrap: pretty;
+}

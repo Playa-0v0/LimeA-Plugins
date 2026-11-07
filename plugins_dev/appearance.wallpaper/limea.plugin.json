@@ -1,12 +1,17 @@
 {
   "id": "appearance.wallpaper",
   "name": "壁纸与玻璃外观",
-  "version": "0.1.4",
-  "apiVersion": 9,
+  "version": "0.2.0",
+  "apiVersion": 11,
   "hostVersion": ">=0.1.0 <1",
   "entry": "backend.mjs",
   "background": "background.mjs",
-  "settings": "settings.mjs",
   "permissions": ["fs:steam-readonly", "fs:selected-media", "fs:plugin-data", "net:loopback"],
-  "resources": ["assets/icon.png"]
+  "resources": ["assets/icon.png"],
+  "page": {
+    "entry": "page.mjs",
+    "description": "为 LimeA 添加本地图片、静音视频、Wallpaper Engine 场景或网页壁纸，并按需调整玻璃外观、不透明度、模糊、压暗、填充方式和帧率。媒体留在原位置，选择后自动保存，重启恢复；停用插件会恢复原生背景。",
+    "author": "Playa",
+    "illustration": "assets/banner.webp"
+  }
 }

@@ -7,8 +7,7 @@ export async function mount(container, ctx) {
   style.textContent = css;
   const page = document.createElement('section');
   page.className = 'wallpaper-settings';
-  page.innerHTML = `<header><h2>${t('壁纸与玻璃外观', 'Wallpaper & glass')}</h2><p>${t('选择本地图片、视频或 Wallpaper Engine 项目的 project.json。文件留在原位置。', 'Choose an image, video, or a Wallpaper Engine project.json. Files stay in place.')}</p></header>
-    <div class="actions"><button data-action="pick">${t('选择文件', 'Choose file')}</button><button data-action="scan">${t('扫描工坊库', 'Scan workshop')}</button><button data-action="clear">${t('恢复默认背景', 'Clear wallpaper')}</button></div>
+  page.innerHTML = `<div class="actions"><button data-action="pick">${t('选择文件', 'Choose file')}</button><button data-action="scan">${t('扫描工坊库', 'Scan workshop')}</button><button data-action="clear">${t('恢复默认背景', 'Clear wallpaper')}</button></div>
     <output role="status" aria-live="polite"></output><div class="library" role="list" aria-label="${t('壁纸库', 'Wallpapers')}"></div>
     <form><label>${t('玻璃外观', 'Glass appearance')}<input name="glass" type="checkbox"></label>
     <label>${t('工作区不透明度', 'Workspace opacity')}<input aria-label="${t('工作区不透明度', 'Workspace opacity')}" name="opacity" type="range" min="0.5" max="1" step="0.01"><span data-value="opacity"></span></label>

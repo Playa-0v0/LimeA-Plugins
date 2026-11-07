@@ -1,8 +1,9 @@
 import { build } from 'esbuild';
 import sharp from 'sharp';
-import { mkdir, cp, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, cp, writeFile, readFile, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 process.chdir(fileURLToPath(new URL('.', import.meta.url)));
+await rm('dist', { recursive: true, force: true });
 await mkdir('dist/runtime', { recursive: true });
 await mkdir('dist/assets', { recursive: true });
 await build({
@@ -16,16 +17,24 @@ await build({
     js: "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);",
   },
 });
-for (const entry of ['background', 'settings'])
-  await build({
-    entryPoints: [`src/${entry}.mjs`],
-    outfile: `dist/${entry}.mjs`,
-    bundle: true,
-    platform: 'browser',
-    format: 'esm',
-    target: 'chrome140',
-    loader: { '.css': 'text' },
-  });
+await build({
+  entryPoints: ['src/background.mjs'],
+  outfile: 'dist/background.mjs',
+  bundle: true,
+  platform: 'browser',
+  format: 'esm',
+  target: 'chrome140',
+  loader: { '.css': 'text' },
+});
+await build({
+  entryPoints: ['src/page.mjs'],
+  outfile: 'dist/page.mjs',
+  bundle: true,
+  platform: 'browser',
+  format: 'esm',
+  target: 'chrome140',
+  loader: { '.css': 'text' },
+});
 await build({
   entryPoints: ['src/player.mjs'],
   outfile: 'dist/runtime/player.mjs',
@@ -51,6 +60,7 @@ for (const file of [
   'THIRD-PARTY-NOTICES.txt',
 ])
   await cp(file, `dist/${file}`);
+await cp('assets/banner.webp', 'dist/assets/banner.webp');
 await cp('vendor/LICENSE-dsh', 'dist/LICENSE-dsh');
 await cp('node_modules/mediabunny/src', 'dist/sources/mediabunny', { recursive: true });
 await cp('node_modules/mediabunny/package.json', 'dist/sources/mediabunny/package.json');
@@ -80,4 +90,4 @@ for (const pkg of [
     } catch {}
   }
 }
-console.log('Built appearance.wallpaper/dist');
+console.log('Built appearance.wallpaper/dist (interface 11)');
