@@ -1,7 +1,7 @@
 {
   "id": "connectors.notion",
   "name": "Notion",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "apiVersion": 10,
   "hostVersion": ">=0.1.0",
   "entry": "backend.mjs",
@@ -40,7 +40,13 @@
         },
         "required": []
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "page",
@@ -54,9 +60,17 @@
             "type": "string"
           }
         },
-        "required": ["pageId"]
+        "required": [
+          "pageId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "children",
@@ -79,9 +93,17 @@
             "maximum": 50
           }
         },
-        "required": ["blockId"]
+        "required": [
+          "blockId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "search_sources",
@@ -108,7 +130,13 @@
         },
         "required": []
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "database",
@@ -124,9 +152,17 @@
             "maxLength": 36
           }
         },
-        "required": ["databaseId"]
+        "required": [
+          "databaseId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "source",
@@ -142,9 +178,17 @@
             "maxLength": 36
           }
         },
-        "required": ["sourceId"]
+        "required": [
+          "sourceId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "query_source",
@@ -182,9 +226,17 @@
             "maximum": 20
           }
         },
-        "required": ["sourceId"]
+        "required": [
+          "sourceId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "comments",
@@ -210,35 +262,182 @@
             "maximum": 20
           }
         },
-        "required": ["blockId"]
+        "required": [
+          "blockId"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     },
     {
       "id": "request_write",
-      "name": "修改 Notion 内容",
-      "description": "仅在用户要求修改 Notion 时使用，逐次写入均需用户审批。支持创建或更新页面、数据库、数据源、视图，移动页面及更新页面 Markdown，追加或编辑内容块、将块移到回收站，以及创建、更新或删除评论。写入结果不明时严禁自动重试，先让用户核对目标。method 为 POST/PATCH/DELETE，path 仅支持 /v1/pages、/v1/databases、/v1/data_sources、/v1/comments、/v1/views；/v1/pages/{id}、/v1/pages/{id}/move、/v1/pages/{id}/markdown、/v1/blocks/{id}、/v1/blocks/{id}/children、/v1/databases/{id}、/v1/data_sources/{id}、/v1/views/{id}、/v1/comments/{id}；POST 和 PATCH 必须提供符合 Notion API 的 body 对象，DELETE 仅支持 blocks、views 和 comments 的 /v1/.../{id} 且不带 body。",
+      "name": "管理工作区内容",
+      "description": "按 operation 执行 Notion 操作，插件自动选择正确接口。优先用 create_page、append_blocks、update_page、create_comment 常用工具。先加载技能 connectors.notion:notion-workspace 及相关参考资料。含目标的操作必填 targetId；delete_view、delete_comment、trash_block 不带 body，其余必填 body。权限跟随宿主设置，结果不明先核对，不重复写入。",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "method": {
+          "operation": {
             "type": "string",
-            "enum": ["POST", "PATCH", "DELETE"]
+            "enum": [
+              "create_page",
+              "update_page",
+              "move_page",
+              "update_markdown",
+              "append_blocks",
+              "update_block",
+              "trash_block",
+              "create_database",
+              "update_database",
+              "create_data_source",
+              "update_data_source",
+              "create_view",
+              "update_view",
+              "delete_view",
+              "create_comment",
+              "update_comment",
+              "delete_comment"
+            ]
           },
-          "path": {
+          "targetId": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 256
+            "pattern": "^(?:[a-fA-F0-9]{32}|[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12})$"
           },
           "body": {
             "type": "object",
-            "additionalProperties": true
+            "description": "符合当前操作的 Notion 参数对象，具体示例见插件技能对应参考资料。"
           }
         },
-        "required": ["method", "path"]
+        "required": [
+          "operation"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write"
+    },
+    {
+      "id": "create_page",
+      "name": "创建页面",
+      "description": "在已共享父页面或数据源下创建页面。body 必须有 parent 和 properties。 先加载技能 connectors.notion:notion-workspace，按需读取参考资料；无需提供请求方法或路径。权限跟随宿主设置。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "description": "符合当前操作的 Notion 参数对象，具体示例见插件技能对应参考资料。"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write"
+    },
+    {
+      "id": "append_blocks",
+      "name": "追加内容",
+      "description": "向页面或块追加子块。blockId 取已读取的目标 ID，children 是 Notion 块对象数组。 先加载技能 connectors.notion:notion-workspace，按需读取参考资料；无需提供请求方法或路径。权限跟随宿主设置。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "blockId": {
+            "type": "string",
+            "pattern": "^(?:[a-fA-F0-9]{32}|[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12})$"
+          },
+          "children": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "blockId",
+          "children"
+        ]
+      },
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write"
+    },
+    {
+      "id": "update_page",
+      "name": "修改页面",
+      "description": "更新页面属性、图标、封面或回收站状态；body 只包含要修改的字段。 先加载技能 connectors.notion:notion-workspace，按需读取参考资料；无需提供请求方法或路径。权限跟随宿主设置。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "pattern": "^(?:[a-fA-F0-9]{32}|[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12})$"
+          },
+          "body": {
+            "type": "object",
+            "description": "符合当前操作的 Notion 参数对象，具体示例见插件技能对应参考资料。"
+          }
+        },
+        "required": [
+          "pageId",
+          "body"
+        ]
+      },
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write"
+    },
+    {
+      "id": "create_comment",
+      "name": "发表评论",
+      "description": "创建评论或回复讨论。body 包含 parent 或 discussion_id，以及 rich_text 数组。 先加载技能 connectors.notion:notion-workspace，按需读取参考资料；无需提供请求方法或路径。权限跟随宿主设置。",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "description": "符合当前操作的 Notion 参数对象，具体示例见插件技能对应参考资料。"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write"
     },
     {
       "id": "read_resource",
@@ -298,16 +497,29 @@
             "maximum": 20
           }
         },
-        "required": ["kind"]
+        "required": [
+          "kind"
+        ]
       },
-      "modes": ["work", "chat", "learn", "group"]
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read"
     }
   ],
   "page": {
     "entry": "page.mjs",
-    "description": "连接 Notion 工作区，搜索和阅读已共享页面，并经确认后编辑内容。",
+    "description": "连接 Notion 工作区，搜索和阅读已共享页面，并按会话权限编辑内容。",
     "author": "Playa",
     "illustration": "assets/banner.png"
   },
-  "resources": ["assets/icon.png"]
+  "resources": [
+    "assets/icon.png"
+  ],
+  "skills": [
+    "skills/notion-workspace/SKILL.md"
+  ]
 }

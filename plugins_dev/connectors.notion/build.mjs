@@ -23,4 +23,5 @@ await build({
 for (const name of ['limea.plugin.json', 'LICENSE', 'README.md', 'THIRD-PARTY-NOTICES.txt'])
   await copyFile(name, 'dist/' + name);
 await cp('assets', 'dist/assets', { recursive: true });
+await cp('skills', 'dist/skills', { recursive: true });
 console.log('构建完成：导入 plugins_dev/connectors.notion/dist');

@@ -52,7 +52,7 @@ export const zh = {
   commentsTitle: '读取评论',
   commentsDetail: '分页查看已共享页面及内容块的评论。',
   writeTitle: '创建和修改内容',
-  writeDetail: '创建或更新页面、数据库和数据源，编辑内容块及发表评论；每次写入需确认。',
+  writeDetail: '创建或更新页面、数据库和数据源，编辑内容块及发表评论；操作权限跟随当前会话设置。',
   extendedTitle: '查看视图、成员与页面属性',
   extendedDetail: '查看已授权视图、工作区成员、页面属性和文本内容。',
   usageTitle: '开始使用',
@@ -122,7 +122,7 @@ export const en = {
   commentsDetail: 'Read comments on shared pages and blocks, with pagination.',
   writeTitle: 'Create and update content',
   writeDetail:
-    'Create or update pages, databases and data sources, edit blocks and add comments; each write requires approval.',
+    'Create or update pages, databases and data sources, edit blocks and add comments; permissions follow the current conversation settings.',
   extendedTitle: 'Read views, users and page properties',
   extendedDetail: 'Inspect authorized views, workspace users, page properties and text content.',
   usageTitle: 'Start a conversation',

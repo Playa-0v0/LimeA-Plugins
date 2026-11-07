@@ -1,3 +1,4 @@
+import { operationRequest } from './operation-request.mjs';
 import { createNotionReader } from './notion-read.ts';
 import { createNotionOperations, readOperations } from './notion-operations.mjs';
 import { createNotionWrites } from './notion-write.mjs';
@@ -15,10 +16,17 @@ export function apply(ctx) {
       return createNotionOperations(context.connections)(operation, input, context.signal);
     });
   }
-  ctx.tools.register('request_write', async (input, context) => {
-    if (!context.connections) throw new Error('connection-access-denied');
-    return createNotionWrites(context.connections)(input, context.signal);
-  });
+  for (const tool of [
+    'request_write',
+    'create_page',
+    'append_blocks',
+    'update_page',
+    'create_comment',
+  ])
+    ctx.tools.register(tool, async (input, context) => {
+      if (!context.connections) throw new Error('connection-access-denied');
+      return createNotionWrites(context.connections)(operationRequest(tool, input), context.signal);
+    });
   ctx.tools.register('read_resource', async (input, context) => {
     if (!context.connections) throw new Error('connection-access-denied');
     return createExtendedReader(context.connections)(input, context.signal);
