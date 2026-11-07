@@ -1,12 +1,12 @@
 # Notion 插件
 
-在 LimeA 中读取已共享的 Notion（笔记协作平台）页面与数据源，经用户逐次确认后修改页面、内容块与评论。需要支持 `notion-read-write` 权限及写入审批的新版本 LimeA；旧版主程序必须先升级。
+在 LimeA 中读取已共享的 Notion（笔记协作平台）页面与数据源，按当前会话权限修改页面、内容块与评论。需要支持 `notion-read-write` 权限及写入审批的新版本 LimeA；旧版主程序必须先升级。
 
 ## 使用
 
 1. 在插件市场安装并启用「Notion」，或在开发时导入本目录的 `dist`。
 2. 在「设置 → 插件」点击 Notion 的名称或「打开插件」，进入独立页面，点击「连接 Notion」。在浏览器中选择工作区，并选择共享给 LimeA 的页面。
-3. 回到 LimeA，单独点击「允许插件使用」。从下一次发送消息开始，模型可调用工具；每次写入还需单独确认。
+3. 回到 LimeA，单独点击「允许插件使用」。从下一次发送消息开始，模型可调用工具；请求审批档位的写入在聊天内确认；完全访问在已有授权内直接执行。
 
 本插件的介绍、登录操作和连接状态均在独立页面内；不会打开旧设置弹窗。管理菜单提供停用、更新和移除。页面可以在清单 `page.illustration` 中声明可选包内插图；没有时不留空白。启用即信任插件代码；宿主提供的连接能力是受限接口，原生插件执行环境本身不是安全沙箱。
 
@@ -22,18 +22,19 @@
 
 ## 能力与范围
 
-| 工具             | 输入                                                     | 返回                                                |
-| ---------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| `search`         | 可选 `query`、`cursor`、`pageSize`                       | 最多 20 个页面摘要与下一页游标                      |
-| `page`           | `pageId`                                                 | 页面标题、链接及受支持的属性                        |
-| `children`       | `blockId`、可选 `cursor`、`pageSize`                     | 最多 50 个直接子块的文本与下一页游标                |
-| `search_sources` | 可选 `query`、`cursor`、`pageSize`                       | 搜索已共享数据源的标题                              |
-| `database`       | `databaseId`                                             | 数据库与数据源标识                                  |
-| `source`         | `sourceId`                                               | 数据源属性名称、标识和类型                          |
-| `query_source`   | `sourceId`、可选 `filter`、`sorts`、`cursor`、`pageSize` | 数据源页面及下一页游标                              |
-| `comments`       | `blockId`、可选 `cursor`、`pageSize`                     | 评论文本及下一页游标                                |
-| `read_resource`  | `kind`、对象标识、可选分页参数                           | 指定块、属性、用户、评论、视图、模板或页面 Markdown |
-| `request_write`  | `method`、`path`、`body`（删除时省略）                   | 用户批准后的单次写入结果                            |
+| 工具                                                            | 输入                                                     | 返回                                                |
+| --------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
+| `search`                                                        | 可选 `query`、`cursor`、`pageSize`                       | 最多 20 个页面摘要与下一页游标                      |
+| `page`                                                          | `pageId`                                                 | 页面标题、链接及受支持的属性                        |
+| `children`                                                      | `blockId`、可选 `cursor`、`pageSize`                     | 最多 50 个直接子块的文本与下一页游标                |
+| `search_sources`                                                | 可选 `query`、`cursor`、`pageSize`                       | 搜索已共享数据源的标题                              |
+| `database`                                                      | `databaseId`                                             | 数据库与数据源标识                                  |
+| `source`                                                        | `sourceId`                                               | 数据源属性名称、标识和类型                          |
+| `query_source`                                                  | `sourceId`、可选 `filter`、`sorts`、`cursor`、`pageSize` | 数据源页面及下一页游标                              |
+| `comments`                                                      | `blockId`、可选 `cursor`、`pageSize`                     | 评论文本及下一页游标                                |
+| `read_resource`                                                 | `kind`、对象标识、可选分页参数                           | 指定块、属性、用户、评论、视图、模板或页面 Markdown |
+| `create_page`、`append_blocks`、`update_page`、`create_comment` | 目标和操作内容                                           | 创建页面、追加块、更新页面或发表评论                |
+| `request_write`                                                 | `operation`、按操作传 `targetId`、`body`                 | 其他已登记的内容修改                                |
 
 搜索只匹配标题，不进行正文全文搜索。只能看到你在 Notion 中共享给集成的对象；空结果不代表工作区中没有其他内容。内容块的 `hasChildren` 表示可继续用该块的 ID（标识）读取子块。附件仅返回可用说明文字，不下载文件，不自动访问外部链接。数据源查询返回 `requestStatus` 时应检查是否不完整；结果不完整不能被当作全部记录。`read_resource` 返回 `incomplete` 和 `issues` 标记被截断或省略的数据；页面属性标识解码后不能含斜线、反斜线、控制字符、`%`、`?` 或 `#`。暂不支持文件上传、用户管理、视图临时查询及自动同步。
 
@@ -63,3 +64,13 @@ npm run check
 ## 授权
 
 代码采用 [MIT 许可证](LICENSE)。随包附带官方 SDK 与 Zod 的许可证，见 `THIRD-PARTY-NOTICES.txt`。Notion 品牌图标来自官网，横幅由项目提供；图片和品牌商标不属于本插件的 MIT 授权范围。Notion 名称与标志归 Notion Labs, Inc. 所有，本插件由 Playa 独立开发。
+
+## 2.1：会话权限、明确操作和自带技能
+
+先更新 LimeA 宿主，再从 `dist` 升级插件。更新后按宿主要求重新允许当前连接。请求审批档位在聊天中确认一次；自动审批与完全访问使用已授权连接执行。Notion 服务方的能力和共享范围仍然有效。
+
+常用写入使用 create_page、append_blocks、update_page、create_comment；其他写入用 request_write 的固定 operation，模型不填写请求方法或路径。原有搜索、读取、数据源和视图等能力保留。
+
+`skills/notion-workspace/SKILL.md` 随插件安装，宿主以 `connectors.notion:notion-workspace` 提供给模型，并按需加载六份 references。参考资料基于官方文档和插件实际支持范围，接口版本 2026-03-11；核对日期 2026-11-07。技能不授予权限，也不自动执行脚本。
+
+本地参数错误与 Notion 明确拒绝分开反馈；写入结果未知时先核对，不自动重复发送。本版本没有新增文件上传、用户管理或后台同步能力。
