@@ -1,0 +1,121 @@
+:host {
+  color: var(--foreground);
+  font-family: inherit;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  font-size: var(--ui-text-base);
+  font-weight: 600;
+  margin: 0;
+  padding-bottom: var(--ui-space-3);
+  border-bottom: 1px solid var(--border);
+}
+h3 {
+  font-size: var(--ui-text-sm);
+  font-weight: 600;
+  margin: 0 0 var(--ui-space-1);
+}
+p {
+  margin: 0;
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.testing-notice {
+  margin-bottom: var(--ui-space-6);
+  padding: var(--ui-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-md);
+  background: var(--muted);
+}
+.testing-notice h2 {
+  padding: 0;
+  border: 0;
+  font-size: var(--ui-text-sm);
+}
+.testing-notice p {
+  margin-top: var(--ui-space-2);
+  color: var(--muted-foreground);
+}
+.section-icon,
+.feature-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--muted-foreground);
+}
+.feature-icon {
+  margin-top: 0.125rem;
+}
+.account-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-5) 0 0;
+}
+.account-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius-md);
+  flex: none;
+}
+.account-summary {
+  flex: 1;
+  min-width: min(100%, 14rem);
+}
+.account-name {
+  display: block;
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.account-hint {
+  margin-top: var(--ui-space-1);
+  color: var(--muted-foreground);
+}
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-2);
+}
+.account-status {
+  margin-top: var(--ui-space-4);
+  color: var(--muted-foreground);
+}
+.account-error {
+  margin-top: var(--ui-space-4);
+}
+.account-error p {
+  color: var(--destructive);
+  margin-bottom: var(--ui-space-2);
+}
+.features {
+  margin-top: var(--ui-space-8);
+}
+.features ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.features li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ui-space-4);
+  padding: var(--ui-space-5) 0 0;
+}
+
+.features p {
+  color: var(--muted-foreground);
+}
+
+.github-page .device-code { margin: 20px 0; }
+.github-page .device-code code { display: inline-block; font-size: 24px; letter-spacing: 0.12em; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; user-select: all; }

@@ -1,0 +1,2 @@
+GitHub logo is a GitHub brand asset. Source: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+Octokit is distributed under the MIT license. Bundled dependency licenses are appended during build.

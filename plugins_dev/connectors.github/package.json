@@ -1,0 +1,19 @@
+{
+  "name": "@limea-plugins/github",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@octokit/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

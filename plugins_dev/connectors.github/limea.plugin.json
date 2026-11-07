@@ -1,0 +1,130 @@
+{
+  "id": "connectors.github",
+  "name": "GitHub",
+  "version": "1.0.0",
+  "apiVersion": 10,
+  "hostVersion": ">=0.1.0",
+  "entry": "backend.mjs",
+  "toolPresentation": {
+    "name": "GitHub",
+    "icon": "assets/icon.png"
+  },
+  "connections": [
+    {
+      "provider": "github",
+      "permissionSet": "github-repository"
+    }
+  ],
+  "tools": [
+    {
+      "id": "list_repositories",
+      "name": "列出已授权仓库",
+      "description": "列出当前账号为 LimeA Connector 安装的仓库。每次至多查询 10 个安装。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "read",
+      "name": "查询 GitHub",
+      "description": "以 GET 查询已授权的仓库、文件、议题、拉取请求、发布和自动化运行。先读取 github skill 中的接口参考，使用精确路径和分页参数。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^/"
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          }
+        },
+        "required": [
+          "path"
+        ]
+      }
+    },
+    {
+      "id": "write",
+      "name": "修改 GitHub",
+      "description": "创建或修改已授权仓库的内容、议题、拉取请求、发布和自动化运行。遵循 github skill 的接口参考。写入审批绑定完整方法、路径和正文，结果未知时先核对，不自动重发。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "POST",
+              "PATCH",
+              "PUT",
+              "DELETE"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^/"
+          },
+          "body": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "method",
+          "path"
+        ]
+      }
+    }
+  ],
+  "page": {
+    "entry": "page.mjs",
+    "description": "连接 GitHub，搜索和读取仓库内容，处理议题、拉取请求、发布和自动化运行。",
+    "author": "Playa"
+  },
+  "resources": [
+    "assets/icon.png"
+  ],
+  "skills": [
+    "skills/github/SKILL.md"
+  ]
+}
