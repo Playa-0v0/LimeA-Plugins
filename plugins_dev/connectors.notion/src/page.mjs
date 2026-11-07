@@ -19,10 +19,14 @@ export function mount(container, context) {
       <p class="account-status" role="status" aria-live="polite"></p>
       <div class="account-error" role="alert"><p></p><span data-action="retry"></span></div>
     </section>
-    <section class="features"><h2><span class="section-icon" data-icon="blocks"></span><span class="heading-label"></span><span class="section-count">3</span></h2><ul>
+    <section class="features"><h2><span class="section-icon" data-icon="blocks"></span><span class="heading-label"></span><span class="section-count">7</span></h2><ul>
       <li><span class="feature-icon" data-icon="search"></span><div><h3></h3><p></p></div></li>
       <li><span class="feature-icon" data-icon="file-text"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="search"></span><div><h3></h3><p></p></div></li>
       <li><span class="feature-icon" data-icon="list-tree"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="blocks"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="message-square"></span><div><h3></h3><p></p></div></li>
+      <li><span class="feature-icon" data-icon="file-text"></span><div><h3></h3><p></p></div></li>
     </ul></section>
     <section class="usage"><h2><span class="section-icon" data-icon="message-square"></span><span class="heading-label"></span></h2><p></p><blockquote></blockquote></section>`;
   container.replaceChildren(style, root);
@@ -31,8 +35,24 @@ export function mount(container, context) {
   query('.account-icon').src = new URL('assets/icon.png', context.resourceBase).href;
   query('.features h2 .heading-label').textContent = t.featuresTitle;
   [...root.querySelectorAll('.features li')].forEach((item, i) => {
-    item.querySelector('h3').textContent = [t.searchTitle, t.pageTitle, t.blocksTitle][i];
-    item.querySelector('p').textContent = [t.searchDetail, t.pageDetail, t.blocksDetail][i];
+    item.querySelector('h3').textContent = [
+      t.searchTitle,
+      t.pageTitle,
+      t.blocksTitle,
+      t.dataTitle,
+      t.commentsTitle,
+      t.writeTitle,
+      t.extendedTitle,
+    ][i];
+    item.querySelector('p').textContent = [
+      t.searchDetail,
+      t.pageDetail,
+      t.blocksDetail,
+      t.dataDetail,
+      t.commentsDetail,
+      t.writeDetail,
+      t.extendedDetail,
+    ][i];
   });
   query('.usage h2 .heading-label').textContent = t.usageTitle;
   query('.usage p').textContent = t.usage;

@@ -6,7 +6,7 @@ export interface RequestCapability {
   request(input: {
     provider: string;
     url: string;
-    method: 'GET' | 'POST';
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
     headers?: Record<string, string>;
     body?: string;
   }): Promise<{ status: number; headers: Record<string, string>; body: string }>;
@@ -46,33 +46,146 @@ const text = (v: unknown, limit = 8000) =>
       ? v
       : ''
   ).slice(0, limit);
-const page = (v: unknown): JsonValue => {
+export const projectNotionPage = (v: unknown): JsonValue => {
   const p = object(v),
     properties = object(p['properties']);
   const title = Object.values(properties).find((v) => object(v)['type'] === 'title');
   const readable: Record<string, JsonValue> = {};
-  for (const [name, value] of Object.entries(properties).slice(0, 32)) {
+  const issues: { name: string; type: string; reason: string }[] = [];
+  let omittedIssueCount = 0;
+  const issue = (name: string, type: string, reason: string) => {
+    if (issues.length < 100) issues.push({ name, type, reason });
+    else omittedIssueCount++;
+  };
+  const limitedText = (value: unknown, limit: number, name: string, type: string) => {
+    const full = text(value, 1024 * 1024);
+    if (full.length > limit) issue(name, type, 'text-truncated');
+    return full.slice(0, limit);
+  };
+  const projected = (value: unknown, name: string, depth = 0): JsonValue | undefined => {
     const prop = object(value),
-      type = String(prop['type']);
-    if (type === 'title' || type === 'rich_text') readable[name] = text(prop[type], 4000);
-    else if (['number', 'checkbox', 'url', 'email', 'phone_number'].includes(type))
-      readable[name] =
-        typeof prop[type] === 'string'
-          ? String(prop[type]).slice(0, 4000)
-          : typeof prop[type] === 'number' || typeof prop[type] === 'boolean'
-            ? (prop[type] as number | boolean)
-            : null;
-    else if (type === 'select' || type === 'status')
-      readable[name] = String(object(prop[type])['name'] ?? '').slice(0, 256);
-    else if (type === 'multi_select')
-      readable[name] = Array.isArray(prop[type])
-        ? prop[type].map((v) => String(object(v)['name'] ?? '').slice(0, 256)).slice(0, 32)
-        : [];
-    else if (type === 'date') {
-      const date = object(prop[type]);
-      readable[name] = { start: String(date['start'] ?? ''), end: String(date['end'] ?? '') };
+      type = String(prop['type'] ?? 'unknown'),
+      data = prop[type];
+    if (depth > 3) {
+      issue(name, type, 'nesting-limit');
+      return undefined;
     }
+    if (type === 'title' || type === 'rich_text') {
+      const items = Array.isArray(data) ? data : [];
+      if (items.filter((item) => object(item)['type'] === 'mention').length >= 25)
+        issue(name, type, 'mentions-may-be-incomplete');
+      return limitedText(data, 4000, name, type);
+    }
+    if (
+      [
+        'number',
+        'checkbox',
+        'url',
+        'email',
+        'phone_number',
+        'created_time',
+        'last_edited_time',
+      ].includes(type)
+    ) {
+      if (typeof data === 'string') {
+        if (data.length > 4000) issue(name, type, 'text-truncated');
+        return data.slice(0, 4000);
+      }
+      return typeof data === 'number' || typeof data === 'boolean' ? data : null;
+    }
+    if (type === 'select' || type === 'status') {
+      const value = String(object(data)['name'] ?? '');
+      if (value.length > 256) issue(name, type, 'text-truncated');
+      return value.slice(0, 256);
+    }
+    if (type === 'multi_select') {
+      const items = Array.isArray(data) ? data : [];
+      if (items.length > 32) issue(name, type, 'items-truncated');
+      return items.slice(0, 32).map((item) => {
+        const value = String(object(item)['name'] ?? '');
+        if (value.length > 256) issue(name, type, 'text-truncated');
+        return value.slice(0, 256);
+      });
+    }
+    if (type === 'date') {
+      const date = object(data);
+      return {
+        start: String(date['start'] ?? ''),
+        end: String(date['end'] ?? ''),
+        timeZone: String(date['time_zone'] ?? ''),
+      };
+    }
+    if (type === 'relation' || type === 'people') {
+      const items = Array.isArray(data) ? data : [];
+      if (items.length > 32) issue(name, type, 'items-truncated');
+      if (prop['has_more'] === true) issue(name, type, 'upstream-has-more');
+      if (type === 'people' && items.length >= 25) issue(name, type, 'upstream-may-have-more');
+      return items.slice(0, 32).map((item) => {
+        const v = object(item),
+          id = String(v['id'] ?? '');
+        if (type === 'relation') return id;
+        const label = typeof v['name'] === 'string' ? v['name'] : '';
+        if (label.length > 256) issue(name, type, 'text-truncated');
+        return { id, name: label.slice(0, 256), type: String(v['type'] ?? '') };
+      });
+    }
+    if (type === 'formula' || type === 'rollup') {
+      const nested = object(data),
+        subtype = String(nested['type'] ?? 'unknown');
+      if (subtype === 'unsupported' || subtype === 'incomplete' || subtype === 'unknown') {
+        issue(name, type, 'upstream-' + subtype);
+        return { type: subtype, value: null };
+      }
+      issue(name, type, 'upstream-result-may-be-incomplete');
+      if (subtype === 'array') {
+        const items = Array.isArray(nested['array']) ? nested['array'] : [];
+        if (items.length > 32) issue(name, type, 'items-truncated');
+        return {
+          type: subtype,
+          value: items.slice(0, 32).map((item) => projected(item, name, depth + 1) ?? null),
+        };
+      }
+      if (!['string', 'number', 'boolean', 'date'].includes(subtype)) {
+        issue(name, type, 'unsupported-result-' + subtype);
+        return { type: subtype, value: null };
+      }
+      const nestedData = nested[subtype];
+      if (subtype === 'date') {
+        const date = object(nestedData);
+        return {
+          type: subtype,
+          value:
+            nestedData === null
+              ? null
+              : {
+                  start: String(date['start'] ?? ''),
+                  end: String(date['end'] ?? ''),
+                  timeZone: String(date['time_zone'] ?? ''),
+                },
+        };
+      }
+      if (typeof nestedData === 'string') {
+        if (nestedData.length > 4000) issue(name, type, 'text-truncated');
+        return { type: subtype, value: nestedData.slice(0, 4000) };
+      }
+      return {
+        type: subtype,
+        value:
+          typeof nestedData === 'number' || typeof nestedData === 'boolean' ? nestedData : null,
+      };
+    }
+    issue(name, type, 'unsupported-property-type');
+    return undefined;
+  };
+  const entries = Object.entries(properties);
+  if (!p['properties'] || typeof p['properties'] !== 'object' || Array.isArray(p['properties']))
+    issue('', 'page', 'properties-unavailable');
+  for (const [name, value] of entries.slice(0, 32)) {
+    const result = projected(value, name);
+    if (result !== undefined) readable[name] = result;
   }
+  for (const [name, value] of entries.slice(32))
+    issue(name, String(object(value)['type'] ?? 'unknown'), 'property-limit');
   return {
     id: String(p['id']),
     title: text(object(title)['title']) || 'Untitled',
@@ -80,6 +193,13 @@ const page = (v: unknown): JsonValue => {
       typeof p['url'] === 'string' && p['url'].startsWith('https://www.notion.so/') ? p['url'] : '',
     lastEditedAt: String(p['last_edited_time'] ?? ''),
     properties: readable,
+    ...(issues.length || omittedIssueCount
+      ? {
+          propertiesIncomplete: true,
+          propertyIssues: issues,
+          ...(omittedIssueCount ? { omittedIssueCount } : {}),
+        }
+      : {}),
   };
 };
 const block = (v: unknown): JsonValue => {
@@ -109,37 +229,42 @@ function checkedOutput(value: JsonValue): JsonValue {
     throw new ConnectionError('connection-result-too-large');
   return value;
 }
+export function createNotionClient(capability: RequestCapability) {
+  return new Client({
+    notionVersion: '2026-03-11',
+    retry: false,
+    timeoutMs: 15_000,
+    logger: () => {},
+    fetch: async (url, init) => {
+      // The SDK builds requests; the host injects credentials and enforces the read grant.
+      const response = await capability.request({
+        provider: 'notion',
+        url: String(url),
+        method: init?.method?.toUpperCase() as 'GET' | 'POST' | 'PATCH' | 'DELETE',
+        ...(typeof init?.body === 'string' ? { body: init.body } : {}),
+      });
+      return {
+        ok: response.status >= 200 && response.status < 300,
+        status: response.status,
+        headers: new Headers(response.headers),
+        body: null,
+        text: async () => response.body,
+      };
+    },
+  });
+}
 export function createNotionReader(capability: RequestCapability) {
   return async (kind: NotionRead, raw: unknown, signal: AbortSignal): Promise<JsonValue> => {
     const parsed = schemas[kind].safeParse(raw);
     if (!parsed.success) throw new ConnectionError('connection-invalid-read');
     signal.throwIfAborted();
-    const client = new Client({
-      notionVersion: '2026-03-11',
-      retry: false,
-      timeoutMs: 15_000,
-      logger: () => {},
-      fetch: async (url, init) => {
-        // The SDK builds requests; the host injects credentials and enforces the read grant.
-        const response = await capability.request({
-          provider: 'notion',
-          url: String(url),
-          method: init?.method?.toUpperCase() as 'GET' | 'POST',
-          ...(typeof init?.body === 'string' ? { body: init.body } : {}),
-        });
-        return {
-          ok: response.status >= 200 && response.status < 300,
-          status: response.status,
-          headers: new Headers(response.headers),
-          body: null,
-          text: async () => response.body,
-        };
-      },
-    });
+    const client = createNotionClient(capability);
     try {
       const input = parsed.data;
       if (kind === 'page' && 'pageId' in input)
-        return checkedOutput(page(await client.pages.retrieve({ page_id: input.pageId })));
+        return checkedOutput(
+          projectNotionPage(await client.pages.retrieve({ page_id: input.pageId })),
+        );
       const result =
         kind === 'search' && 'query' in input
           ? await client.search({
@@ -162,7 +287,7 @@ export function createNotionReader(capability: RequestCapability) {
               });
       signal.throwIfAborted();
       return checkedOutput({
-        items: result.results.map(kind === 'search' ? page : block),
+        items: result.results.map(kind === 'search' ? projectNotionPage : block),
         hasMore: result.has_more,
         nextCursor: result.next_cursor,
       });
