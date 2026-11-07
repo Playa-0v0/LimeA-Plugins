@@ -4,9 +4,9 @@
     {
       "id": "appearance.wallpaper",
       "name": "壁纸与玻璃外观",
-      "description": "本地图片、视频与 Wallpaper Engine 场景／网页壁纸，支持封面预览、工坊扫描、玻璃外观、外框加深、帧率和暂停控制。复用 dsh-wallpaper-engine 与 WebWallGL，需要插件接口版本 9 的 LimeA。",
+      "description": "本地图片、视频与 Wallpaper Engine 场景／网页壁纸，支持封面预览、工坊扫描、玻璃外观、外框加深、帧率和暂停控制。安装并启用后，从插件详情页的「外观设置」选择壁纸并调整效果。复用 dsh-wallpaper-engine 与 WebWallGL，需要插件接口版本 11 的 LimeA。",
       "author": "Playa",
-      "version": "0.1.4",
+      "version": "0.2.0",
       "hostVersion": ">=0.1.0 <1",
       "category": "appearance",
       "permissions": [
@@ -15,10 +15,10 @@
         "fs:plugin-data",
         "net:loopback"
       ],
-      "archive": "plugins/appearance.wallpaper/0.1.4.zip",
-      "sha256": "ad7f49b5618a9c566ed76df5f84ded0ea1896141798e8353f562034f8aff5fb5",
+      "archive": "plugins/appearance.wallpaper/0.2.0.zip",
+      "sha256": "92bd01b3657dd2c8f8920035d7c5b35c3969a9d1b3d3f77a5adb3d6b55767c35",
       "icon": {
-        "path": "icons/appearance.wallpaper/0.1.4.png",
+        "path": "icons/appearance.wallpaper/0.2.0.png",
         "sha256": "c92705b99dab8dfeea4829b111fdd50f3e131378320a6c7efb6ef15ab03aba6e"
       }
     },
