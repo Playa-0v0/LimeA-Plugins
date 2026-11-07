@@ -1,6 +1,6 @@
 # 素材说明
 
-`assets/icon.svg` 为本插件制作的几何画笔图标，`assets/icon.png` 为其 192×192 的分发版本，均按本目录 MIT 许可证提供。
+`assets/icon.svg` 为本插件制作的几何画笔图标，`assets/icon.png` 为其 192×192 的分发版本，均按本目录 MIT 许可证提供。`assets/banner.webp` 为详情页横幅，由项目提供。
 
 ## 音效
 

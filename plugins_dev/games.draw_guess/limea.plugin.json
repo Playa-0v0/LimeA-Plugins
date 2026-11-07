@@ -1,8 +1,8 @@
 {
   "id": "games.draw_guess",
   "name": "你画我猜",
-  "version": "0.1.2",
-  "apiVersion": 8,
+  "version": "0.2.0",
+  "apiVersion": 11,
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
   "permissions": ["fs:plugin-data", "model:private-task"],
@@ -23,6 +23,12 @@
       "modes": ["chat"]
     }
   ],
+  "page": {
+    "entry": "page.mjs",
+    "description": "和角色一起玩你画我猜：轮流作画、边画边猜，结束后还能复盘最近的轮次。",
+    "author": "Playa",
+    "illustration": "assets/banner.webp"
+  },
   "tools": [
     {
       "id": "play",
