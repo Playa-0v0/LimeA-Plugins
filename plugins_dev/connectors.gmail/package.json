@@ -1,0 +1,21 @@
+{
+  "name": "@limea-plugins/gmail",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "^9.0.1",
+    "sanitize-html": "^2.18.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "@googleapis/gmail": "^22.0.1"
+  }
+}

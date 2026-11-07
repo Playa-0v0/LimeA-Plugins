@@ -1,0 +1,294 @@
+{
+  "id": "connectors.gmail",
+  "name": "Gmail",
+  "version": "1.0.0",
+  "apiVersion": 10,
+  "hostVersion": ">=0.1.0",
+  "entry": "backend.mjs",
+  "toolPresentation": {
+    "name": "Gmail",
+    "icon": "assets/icon.png"
+  },
+  "connections": [
+    {
+      "provider": "google",
+      "permissionSet": "gmail-modify"
+    }
+  ],
+  "tools": [
+    {
+      "id": "search_messages",
+      "name": "搜索邮件",
+      "description": "按 Gmail 搜索语法查找当前邮箱的邮件，返回发件人、主题及摘要。使用 pageToken 翻页。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "pageToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "get_message",
+      "name": "阅读邮件",
+      "description": "读取指定邮件的纯文本、收发件人和附件名称。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        },
+        "required": [
+          "messageId"
+        ]
+      }
+    },
+    {
+      "id": "get_thread",
+      "name": "阅读会话",
+      "description": "读取会话中的邮件。用 offset 从指定邮件继续阅读。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "threadId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "threadId"
+        ]
+      }
+    },
+    {
+      "id": "list_labels",
+      "name": "查看标签",
+      "description": "列出当前邮箱的系统和自定义标签。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "read",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "id": "create_draft",
+      "name": "创建邮件草稿",
+      "description": "生成未发送的纯文本草稿。to 是收件地址数组。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "to": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 254
+            }
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "text"
+        ]
+      }
+    },
+    {
+      "id": "send_message",
+      "name": "发送邮件",
+      "description": "发送本次给出的完整正文。仅用于用户明确要求发送的邮件。to 是收件地址数组。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "to": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 254
+            }
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "text"
+        ]
+      }
+    },
+    {
+      "id": "change_message",
+      "name": "整理邮件",
+      "description": "标为已读、未读，加星、去星、归档或移回收件箱。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "mark_read",
+              "mark_unread",
+              "star",
+              "unstar",
+              "archive",
+              "move_to_inbox"
+            ]
+          }
+        },
+        "required": [
+          "messageId",
+          "change"
+        ]
+      }
+    },
+    {
+      "id": "trash_message",
+      "name": "移入回收站",
+      "description": "将指定邮件移入 Gmail 回收站。",
+      "modes": [
+        "work",
+        "chat",
+        "learn",
+        "group"
+      ],
+      "access": "write",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        },
+        "required": [
+          "messageId"
+        ]
+      }
+    }
+  ],
+  "page": {
+    "entry": "page.mjs",
+    "description": "连接 Google 邮箱，在 LimeA 中搜索和阅读邮件、创建草稿、发送及整理邮件。",
+    "author": "Playa"
+  },
+  "resources": [
+    "assets/icon.png"
+  ],
+  "skills": [
+    "skills/gmail/SKILL.md"
+  ]
+}
