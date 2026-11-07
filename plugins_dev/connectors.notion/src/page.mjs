@@ -9,6 +9,14 @@ export function mount(container, context) {
   const root = document.createElement('div');
   root.className = 'notion-page';
   root.innerHTML = `
+    <section class="intro" aria-label="">
+      <ul>
+        <li><strong></strong><span></span></li>
+        <li><strong></strong><span></span></li>
+        <li><strong></strong><span></span></li>
+        <li><strong></strong><span></span></li>
+      </ul>
+    </section>
     <section class="account" aria-labelledby="notion-account-title">
       <h2 id="notion-account-title"><span class="section-icon" data-icon="link"></span><span class="heading-label"></span></h2>
       <div class="account-row">
@@ -52,6 +60,21 @@ export function mount(container, context) {
       t.commentsDetail,
       t.writeDetail,
       t.extendedDetail,
+    ][i];
+  });
+  query('.intro').setAttribute('aria-label', t.introLabel);
+  [...root.querySelectorAll('.intro li')].forEach((item, i) => {
+    item.querySelector('strong').textContent = [
+      t.introSearchTitle,
+      t.introDocsTitle,
+      t.introProjectsTitle,
+      t.introMemoryTitle,
+    ][i];
+    item.querySelector('span').textContent = [
+      t.introSearchDetail,
+      t.introDocsDetail,
+      t.introProjectsDetail,
+      t.introMemoryDetail,
     ][i];
   });
   query('.usage h2 .heading-label').textContent = t.usageTitle;

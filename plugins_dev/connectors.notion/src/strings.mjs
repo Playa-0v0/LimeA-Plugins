@@ -60,6 +60,15 @@ export const zh = {
   usageExample: '帮我在 Notion 找到项目笔记，并总结下一步要做的事。',
   readOnly: '可请求读写（需服务端授权）· 仅限已共享页面',
   ready: '已连接',
+  introLabel: 'Notion 能为你做什么',
+  introSearchTitle: '在工作区查找答案：',
+  introSearchDetail: '检索页面与数据库，基于团队沉淀的知识库获取信息。',
+  introDocsTitle: '将对话转为文档：',
+  introDocsDetail: '把调研内容、方案、规格文档、笔记保存成页面，供团队审阅编辑。',
+  introProjectsTitle: '推进项目进度：',
+  introProjectsDetail: '直接在对话里创建任务、更新状态、向数据库追加备注。',
+  introMemoryTitle: '在多个助手之间共享统一知识库：',
+  introMemoryDetail: '把记忆和能力存在 Notion，让所有助手遵循你的偏好与工作方式。',
 };
 export const en = {
   accountTitle: 'Account',
@@ -130,4 +139,14 @@ export const en = {
   usageExample: 'Find my project notes in Notion and summarize the next steps.',
   readOnly: 'Read and write requests require provider authorization · shared pages',
   ready: 'Connected',
+  introLabel: 'What Notion can do',
+  introSearchTitle: 'Find answers in your workspace:',
+  introSearchDetail: "Search pages and databases for answers grounded in your team's knowledge.",
+  introDocsTitle: 'Turn chats into docs:',
+  introDocsDetail: 'Save research, plans, specs and notes as pages your team can review and edit.',
+  introProjectsTitle: 'Keep projects moving:',
+  introProjectsDetail: 'Create tasks, update statuses and add notes to databases directly from chat.',
+  introMemoryTitle: 'Share one brain across agents:',
+  introMemoryDetail:
+    'Store memories and skills in Notion so all agents follow your preferences and way of working.',
 };

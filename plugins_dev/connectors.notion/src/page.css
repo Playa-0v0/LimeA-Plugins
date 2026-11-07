@@ -29,6 +29,38 @@ p {
   line-height: var(--ui-leading-prose);
   overflow-wrap: anywhere;
 }
+.intro {
+  margin-bottom: var(--ui-space-8);
+}
+.intro ul {
+  display: grid;
+  gap: var(--ui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.intro li {
+  position: relative;
+  padding-left: var(--ui-space-4);
+  color: var(--muted-foreground);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-prose);
+  overflow-wrap: anywhere;
+}
+.intro li::before {
+  content: '';
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.intro strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
 .section-icon,
 .feature-icon,
 .section-count {

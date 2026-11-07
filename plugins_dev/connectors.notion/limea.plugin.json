@@ -1,7 +1,7 @@
 {
   "id": "connectors.notion",
   "name": "Notion",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "apiVersion": 10,
   "hostVersion": ">=0.1.0",
   "entry": "backend.mjs",
@@ -512,7 +512,7 @@
   ],
   "page": {
     "entry": "page.mjs",
-    "description": "连接 Notion 工作区，搜索和阅读已共享页面，并按会话权限编辑内容。",
+    "description": "把 Notion 和你的智能助手连接起来，让它和团队、其他助手共用一套上下文。连接后可以检索工作区、新建和更新页面、管理项目与任务，并把成果存回 Notion。",
     "author": "Playa",
     "illustration": "assets/banner.png"
   },
