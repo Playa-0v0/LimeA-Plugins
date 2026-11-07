@@ -1,7 +1,7 @@
 {
   "id": "connectors.github",
   "name": "GitHub",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "apiVersion": 10,
   "hostVersion": ">=0.1.0",
   "entry": "backend.mjs",
@@ -119,7 +119,8 @@
   "page": {
     "entry": "page.mjs",
     "description": "连接 GitHub，搜索和读取仓库内容，处理议题、拉取请求、发布和自动化运行。",
-    "author": "Playa"
+    "author": "Playa",
+    "illustration": "assets/banner.png"
   },
   "resources": [
     "assets/icon.png"

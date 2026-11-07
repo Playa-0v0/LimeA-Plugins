@@ -28,15 +28,15 @@
       "name": "GitHub",
       "description": "连接 GitHub，搜索和读取仓库内容，处理议题、拉取请求、发布和自动化运行。",
       "author": "Playa",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "hostVersion": ">=0.1.0",
       "category": "code",
       "tier": "official",
       "permissions": [],
-      "archive": "plugins/connectors.github/1.0.0.zip",
-      "sha256": "c90c3c5329514db6977bf0dba21aec2e7cba5c38ad3878b50e5c46cd794951fd",
+      "archive": "plugins/connectors.github/1.0.1.zip",
+      "sha256": "afa00fbe01568c77d1bb67aa0de204c818e02803ca6f1d2dde3a277a28a06669",
       "icon": {
-        "path": "icons/connectors.github/1.0.0.png",
+        "path": "icons/connectors.github/1.0.1.png",
         "sha256": "6d6ef7bede0416b6ebee2014be5852576dbce89235fe16ea5c44ed01bd522132"
       }
     },
