@@ -25,16 +25,16 @@
     {
       "id": "connectors.notion",
       "name": "Notion",
-      "description": "连接 Notion 工作区，搜索和读取已共享页面、数据源与评论，并在每次确认后创建或更新页面、编辑内容块及发表评论。凭据由宿主管理，需要支持读写审批的新版本 LimeA。",
+      "description": "连接 Notion 工作区，搜索和读取已共享页面、数据源与评论，并按当前会话权限创建或更新页面、编辑内容块及发表评论。凭据由宿主管理，需要支持读写审批的新版本 LimeA。",
       "author": "Playa",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "hostVersion": ">=0.1.0",
       "category": "tools",
       "permissions": [],
-      "archive": "plugins/connectors.notion/2.0.0.zip",
-      "sha256": "3aeb02a7a80a0634c2139b5e3c7c555adc15b190e494f175f060972034e9d1b8",
+      "archive": "plugins/connectors.notion/2.1.0.zip",
+      "sha256": "b47881062eb6d706cae1bd9f3082d9ef1b871cbb0a2a2264fc9b8c72b39d9faa",
       "icon": {
-        "path": "icons/connectors.notion/2.0.0.png",
+        "path": "icons/connectors.notion/2.1.0.png",
         "sha256": "483846a85e43e22879445047b83b22033e70fcc25ab34809ebadb7f856507ee0"
       }
     },

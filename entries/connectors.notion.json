@@ -1,7 +1,7 @@
 {
   "author": "Playa",
   "category": "tools",
-  "description": "连接 Notion 工作区，搜索和读取已共享页面、数据源与评论，并在每次确认后创建或更新页面、编辑内容块及发表评论。凭据由宿主管理，需要支持读写审批的新版本 LimeA。",
+  "description": "连接 Notion 工作区，搜索和读取已共享页面、数据源与评论，并按当前会话权限创建或更新页面、编辑内容块及发表评论。凭据由宿主管理，需要支持读写审批的新版本 LimeA。",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": "plugins_dev/connectors.notion",
