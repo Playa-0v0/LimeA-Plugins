@@ -15,10 +15,20 @@ export async function readMetadata(root, id, path = join(root, 'entries', `${id}
   if (
     !metadata.author ||
     !metadata.description ||
-    !['games', 'appearance', 'tools', 'other'].includes(metadata.category) ||
+    ![
+      'games',
+      'appearance',
+      'efficiency',
+      'social',
+      'communication',
+      'code',
+      'design',
+      'other',
+    ].includes(metadata.category) ||
+    !['official', 'community'].includes(metadata.tier) ||
     !/^[a-zA-Z0-9.+() -]{1,100}$/.test(metadata.license ?? '')
   ) {
-    throw new Error('条目必须声明作者、简介、分类和许可证标识');
+    throw new Error('条目必须声明作者、简介、分类、官方／社区层级和许可证标识');
   }
   const repository = metadata.repository;
   if (

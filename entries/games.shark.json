@@ -1,6 +1,7 @@
 {
   "author": "Playa",
   "category": "games",
+  "tier": "official",
   "description": "按下鲨鱼的牙齿，看看谁会碰到那颗危险牙齿。支持单人挑战和角色陪玩，随机先手、轮流按牙、累计计分，还可以再来一局。每段聊天独立保存进度，中断后可继续。安装并启用后，在 Chat 模式右侧的“小游戏”中打开，也可从插件详情页查看玩法说明。角色陪玩使用当前会话模型。需要支持插件接口版本 11 的 LimeA。",
   "icon": "assets/icon.png",
   "license": "MIT",

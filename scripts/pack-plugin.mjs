@@ -82,6 +82,7 @@ const entry = {
   version: manifest.version,
   hostVersion: manifest.hostVersion,
   category: metadata.category,
+  tier: metadata.tier,
   permissions: manifest.permissions ?? [],
   archive,
   sha256: sha256(bytes),

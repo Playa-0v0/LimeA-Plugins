@@ -42,6 +42,7 @@ async function fixture() {
       author: '作者',
       description: '测试',
       category: 'games',
+      tier: 'official',
       license: 'MIT',
       repository: `plugins_dev/${id}`,
       documentation: `plugins_dev/${id}/README.md`,
@@ -77,6 +78,7 @@ test('发布保留过渡文件，清理后每个插件仅有一个正式包且�
     succeeded(run(directory, 'pack-plugin.mjs', 'dist', `entries/${id}.json`));
     const first = JSON.parse(await readFile(join(directory, 'catalog.json'), 'utf8'));
     assert.equal(first.plugins[0].archive, `plugins/${id}/1.0.0.zip`);
+    assert.equal(first.plugins[0].tier, 'official');
     assert.equal(first.plugins[0].license, undefined, '仓库展示字段不能泄漏到严格的宿主清单');
     assert.match(await readFile(join(directory, 'README.md'), 'utf8'), /测试插件/);
     succeeded(run(directory, 'pack-plugin.mjs', 'dist', `entries/${id}.json`));

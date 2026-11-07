@@ -21,11 +21,13 @@ export async function checkCatalog(root, allowStale = false) {
       throw new Error('安装包路径不符合目录规范');
     if (item.icon && !item.icon.path.startsWith(`icons/${item.id}/${item.version}.`))
       throw new Error('图标路径不符合目录规范');
+    if (!['official', 'community'].includes(item.tier)) throw new Error('插件层级无效');
     const metadata = await readMetadata(root, item.id);
     if (
       metadata.author !== item.author ||
       metadata.description !== item.description ||
-      metadata.category !== item.category
+      metadata.category !== item.category ||
+      metadata.tier !== item.tier
     )
       throw new Error('市场清单与条目资料不一致');
     for (const resource of [

@@ -31,7 +31,7 @@
 icons/<插件标识>/<版本>.png       市场图标，由打包脚本复制生成
 plugins_dev/<插件标识>/          插件源码、README、LICENSE 和素材说明
 plugins/<插件标识>/<版本>.zip    当前正式安装包
-entries/<插件标识>.json          作者、分类、协议、源码与文档链接
+entries/<插件标识>.json          作者、分类、官方／社区层级、协议、源码与文档链接
 scripts/                        打包、文档生成、校验和旧包清理脚本
 catalog.json                    LimeA 读取的市场清单
 ```

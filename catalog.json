@@ -9,6 +9,7 @@
       "version": "0.2.0",
       "hostVersion": ">=0.1.0 <1",
       "category": "appearance",
+      "tier": "official",
       "permissions": [
         "fs:steam-readonly",
         "fs:selected-media",
@@ -29,7 +30,8 @@
       "author": "Playa",
       "version": "2.1.1",
       "hostVersion": ">=0.1.0",
-      "category": "tools",
+      "category": "efficiency",
+      "tier": "official",
       "permissions": [],
       "archive": "plugins/connectors.notion/2.1.1.zip",
       "sha256": "532c4c7ba111b08f353e6625c239caf5fa8edc20d68c42ed4eed98831f282aed",
@@ -46,6 +48,7 @@
       "version": "0.2.1",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
+      "tier": "official",
       "permissions": [
         "fs:plugin-data",
         "model:private-task"
@@ -65,6 +68,7 @@
       "version": "0.3.1",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
+      "tier": "official",
       "permissions": [
         "fs:plugin-data"
       ],
@@ -83,6 +87,7 @@
       "version": "0.4.1",
       "hostVersion": ">=0.1.0 <1.0.0",
       "category": "games",
+      "tier": "official",
       "permissions": [
         "fs:plugin-data"
       ],
