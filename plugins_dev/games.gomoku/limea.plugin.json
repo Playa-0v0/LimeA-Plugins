@@ -1,13 +1,19 @@
 {
   "id": "games.gomoku",
   "name": "五子棋",
-  "version": "0.2.1",
-  "apiVersion": 7,
+  "version": "0.3.0",
+  "apiVersion": 11,
   "settings": "settings.mjs",
   "hostVersion": ">=0.1.0 <1.0.0",
   "entry": "backend.mjs",
   "permissions": ["fs:plugin-data"],
   "resources": ["assets/stone.mp3"],
+  "page": {
+    "entry": "page.mjs",
+    "description": "和当前角色下一盘五子棋。15×15 自由规则，开局随机分配黑白，黑棋先行；双方轮流落子，横、竖或斜向连续五子或以上获胜。可以选择模型独立思考或本地引擎给出候选，对局记录、暂停恢复和再来一局都随聊天打开，不设积分压力。",
+    "author": "Playa",
+    "illustration": "assets/banner.webp"
+  },
   "panels": [
     {
       "id": "games.gomoku.play",

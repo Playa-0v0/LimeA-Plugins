@@ -40,10 +40,20 @@ await build({
   minify: true,
   loader: { '.css': 'text' },
 });
+await build({
+  entryPoints: ['src/page.mjs'],
+  outfile: 'dist/page.mjs',
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  target: 'chrome140',
+  loader: { '.css': 'text' },
+});
 await sharp('assets/icon.svg').resize(192, 192).png().toFile('dist/assets/icon.png');
 await cp('limea.plugin.json', 'dist/limea.plugin.json');
 await cp('LICENSE', 'dist/LICENSE');
 await cp('THIRD-PARTY-NOTICES.txt', 'dist/THIRD-PARTY-NOTICES.txt');
 await cp('assets/stone.mp3', 'dist/assets/stone.mp3');
+await cp('assets/banner.webp', 'dist/assets/banner.webp');
 await cp('ASSETS.md', 'dist/ASSETS.md');
-console.log('构建完成：导入 plugins_dev/games.gomoku/dist 并启用。');
+console.log('构建完成：在支持接口 11 的 LimeA 中导入 plugins_dev/games.gomoku/dist 并启用。');
