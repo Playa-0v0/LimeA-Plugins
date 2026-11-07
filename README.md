@@ -44,7 +44,7 @@ catalog.json                    LimeA 读取的市场清单
 Git 支持部分克隆与稀疏检出，可只下载开发所需的文件内容：
 
 ```sh
-git clone --depth 1 --filter=blob:none --sparse https://github.com/Playa-0v0/LimeA-Plugins.git
+git clone --depth 1 --filter=blob:none --sparse https://github.com/Playa-LimeA/LimeA-Plugins.git
 cd LimeA-Plugins
 git sparse-checkout set plugins_dev entries scripts
 ```
