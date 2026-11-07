@@ -1,0 +1,10 @@
+{
+  "author": "Playa",
+  "category": "code",
+  "description": "连接 GitHub，搜索和读取仓库内容，处理议题、拉取请求、发布和自动化运行。",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "repository": "plugins_dev/connectors.github",
+  "documentation": "plugins_dev/connectors.github/README.md",
+  "tier": "official"
+}

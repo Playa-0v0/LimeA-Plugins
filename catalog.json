@@ -24,6 +24,23 @@
       }
     },
     {
+      "id": "connectors.github",
+      "name": "GitHub",
+      "description": "连接 GitHub，搜索和读取仓库内容，处理议题、拉取请求、发布和自动化运行。",
+      "author": "Playa",
+      "version": "1.0.0",
+      "hostVersion": ">=0.1.0",
+      "category": "code",
+      "tier": "official",
+      "permissions": [],
+      "archive": "plugins/connectors.github/1.0.0.zip",
+      "sha256": "c90c3c5329514db6977bf0dba21aec2e7cba5c38ad3878b50e5c46cd794951fd",
+      "icon": {
+        "path": "icons/connectors.github/1.0.0.png",
+        "sha256": "6d6ef7bede0416b6ebee2014be5852576dbce89235fe16ea5c44ed01bd522132"
+      }
+    },
+    {
       "id": "connectors.gmail",
       "name": "Gmail（待谷歌认证）",
       "description": "连接 Google 邮箱，在 LimeA 中搜索和阅读邮件、创建草稿、发送及整理邮件。",
